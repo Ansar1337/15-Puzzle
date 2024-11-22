@@ -1,0 +1,83 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    /*padding-top: 50px;*/
+    background-color: #f4f4f4;
+}
+
+.game_container {
+    width: 300px;
+    text-align: center;
+}
+
+/*Шапка*/
+.game_header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.info_board {
+    font-size: 14px;
+}
+
+#leaderboard-btn {
+    font-size: 14px;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+/*Игровая зона*/
+.game_board_container {
+    border: 2px solid black;
+    border-radius: 10px;
+    width: 300px;
+    height: 300px;
+    margin-bottom: 15px;
+}
+
+.game_board {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+    justify-items: center;
+    height: 100%;
+    align-items: center;
+}
+
+.puzzle_item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    background-color: gray;
+    width: 60px;
+    height: 60px;
+    font-size: 18px;
+}
+
+.puzzle_item_empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    background-color: darkgrey;
+    width: 60px;
+    height: 60px;
+    font-size: 18px;
+}
+
+/*Кнопки*/
+.game_controls button {
+    padding: 10px 20px;
+    font-size: 16px;
+    margin: 0 5px;
+    cursor: pointer;
+}

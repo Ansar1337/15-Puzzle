@@ -2,9 +2,55 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Fifteen game</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
+<div class="game_container">
+
+    <!--Шапка-->
+    <header class="game_header">
+        <div class="info_board">
+            <span>Ходы:
+            <span id="moves">0</span>
+            </span>
+            <span>Время:
+            <span id="time">00:00</span>
+            </span>
+        </div>
+        <button id="leaderboard-btn">Топ-15 игроков</button>
+    </header>
+
+    <!--Игровая зона-->
+    <div class="game_board_container">
+        <div class="game_board">
+            <div class="puzzle_item">1</div>
+            <div class="puzzle_item">2</div>
+            <div class="puzzle_item">3</div>
+            <div class="puzzle_item">4</div>
+            <div class="puzzle_item">5</div>
+            <div class="puzzle_item">6</div>
+            <div class="puzzle_item">7</div>
+            <div class="puzzle_item">8</div>
+            <div class="puzzle_item">9</div>
+            <div class="puzzle_item">10</div>
+            <div class="puzzle_item">11</div>
+            <div class="puzzle_item">12</div>
+            <div class="puzzle_item">13</div>
+            <div class="puzzle_item">14</div>
+            <div class="puzzle_item">15</div>
+            <div class="puzzle_item_empty"></div>
+        </div>
+    </div>
+
+    <!--Кнопки-->
+    <div class="game_controls">
+        <button id="start_restart_btn">Старт</button>
+        <button id="reset_btn">Сброс</button>
+    </div>
+
+</div>
+<!--<script src="script.js"></script>-->
 </body>
 </html>
