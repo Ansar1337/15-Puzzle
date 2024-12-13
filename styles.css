@@ -35,7 +35,7 @@ body {
 }
 
 /*Игровая зона*/
-.game_board_container {
+.screen_container {
     border: 2px solid black;
     border-radius: 10px;
     width: 300px;
