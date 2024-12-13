@@ -52,6 +52,7 @@ class PuzzleGame {
     }
 
     moveTile(clickedTile) {
+        const boardSize = Math.sqrt(this.cells.length);
         const emptyTileIndex = this.cells.findIndex((tile) => {
             return tile.dataset.number === (this.cells.length).toString();
         });
@@ -63,14 +64,19 @@ class PuzzleGame {
             emptyTileIndex - Math.sqrt(this.cells.length), // Up
             emptyTileIndex + Math.sqrt(this.cells.length)  // Down
         ];
+        const isSameRow = (index1, index2) =>
+            Math.floor(index1 / boardSize) === Math.floor(index2 / boardSize);
 
-        // const validHorizontalMove = ;
+        const isValidMove = validMoves.includes(clickedTileIndex) &&
+            (isSameRow(emptyTileIndex, clickedTileIndex) ||
+                (emptyTileIndex - clickedTileIndex === boardSize || // up
+                    clickedTileIndex - emptyTileIndex === boardSize)); // down
 
-        if (validMoves.includes(clickedTileIndex)) {
+
+        if (isValidMove) {
             // Swap tiles
             [this.cells[emptyTileIndex], this.cells[clickedTileIndex]] = [this.cells[clickedTileIndex], this.cells[emptyTileIndex]];
             this.renderTiles();
-
         }
     }
 }
