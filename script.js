@@ -16,10 +16,10 @@ class PuzzleGame {
             this.cells.push(this.createTile(i + 1));
         }
 
-        // for (let i = this.cells.length - 1; i > 0; i--) {
-        //     const j = Math.floor(Math.random() * (i + 1));
-        //     [this.cells[i], this.cells[j]] = [this.cells[j], this.cells[i]];
-        // }
+        for (let i = this.cells.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [this.cells[i], this.cells[j]] = [this.cells[j], this.cells[i]];
+        }
         this.cells.push(this.createTile(this.tableSize + 1));
     }
 
@@ -52,7 +52,7 @@ class PuzzleGame {
     }
 
     moveTile(clickedTile) {
-        const boardSize = Math.sqrt(this.cells.length);
+        const rowSize = Math.sqrt(this.cells.length);
         const emptyTileIndex = this.cells.findIndex((tile) => {
             return tile.dataset.number === (this.cells.length).toString();
         });
@@ -65,12 +65,12 @@ class PuzzleGame {
             emptyTileIndex + Math.sqrt(this.cells.length)  // Down
         ];
         const isSameRow = (index1, index2) =>
-            Math.floor(index1 / boardSize) === Math.floor(index2 / boardSize);
+            Math.floor(index1 / rowSize) === Math.floor(index2 / rowSize);
 
         const isValidMove = validMoves.includes(clickedTileIndex) &&
             (isSameRow(emptyTileIndex, clickedTileIndex) ||
-                (emptyTileIndex - clickedTileIndex === boardSize || // up
-                    clickedTileIndex - emptyTileIndex === boardSize)); // down
+                (emptyTileIndex - clickedTileIndex === rowSize || // up
+                    clickedTileIndex - emptyTileIndex === rowSize)); // down
 
 
         if (isValidMove) {
@@ -78,8 +78,29 @@ class PuzzleGame {
             [this.cells[emptyTileIndex], this.cells[clickedTileIndex]] = [this.cells[clickedTileIndex], this.cells[emptyTileIndex]];
             this.renderTiles();
         }
+
+        if (this.victoryDetect()) {
+            setTimeout(() => {
+                alert("Congrats!!!");
+            }, 0);
+        }
     }
 }
+
+class StartScreen {
+    startScreen = document.getElementsByClassName("screen_container");
+    title = "Welcome to Fifteen Game";
+
+
+    constructor(startScreen, title) {
+        this.startScreen = startScreen;
+        this.title = title;
+    }
+    // Создать стартовый экран с дивом и заголовком
+    //
+}
+
+
 
 const puzzleObject = new PuzzleGame(document.getElementsByClassName("game_board")[0], 15);
 puzzleObject.createTilesGameBoard();
