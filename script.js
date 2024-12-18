@@ -1,11 +1,39 @@
 "use strict"
 
+/*
 class PuzzleGame {
     state = {
         isGameLaunched: false,
         isGamePaused: false,
         isGameOver: false,
     };
+
+    resetGame() {
+        this.state.isGameOver = false;
+        this.createTilesGameBoard();
+        this.renderTiles();
+    }
+
+    startGame() {
+        this.state.isGameLaunched = true;
+
+        // Clear the content
+        this.gameBoard.innerHTML = "";
+        const heading = document.createElement("h1");
+        heading.textContent = "Fifteen Game";
+        heading.classList.add("game_heading");
+        this.gameBoard.append(heading);
+
+
+        this.resetGame();
+    }
+
+}*/
+
+class PuzzleGame {
+
+    // 1. Create div and classList.add game_board style
+
     gameBoard;
     tableSize;
     cells = [];
@@ -87,31 +115,24 @@ class PuzzleGame {
         if (this.victoryDetect()) {
             setTimeout(() => {
                 alert("Congrats!!!");
-                this.state.isGameOver = true;
+                // this.state.isGameOver = true;
             }, 0);
         }
     }
+}
 
-    resetGame() {
-        this.state.isGameOver = false;
-        this.createTilesGameBoard();
-        this.renderTiles();
+class GameBoard {
+    container;
+
+    constructor(parentElement) {
+        this.container = document.createElement("div");
+        this.container.classList.add("game_board");
+        parentElement.append(this.container);
     }
 
-    startGame() {
-        this.state.isGameLaunched = true;
-
-        // Clear the content
-        this.gameBoard.innerHTML = "";
-        const heading = document.createElement("h1");
-        heading.textContent = "Fifteen Game";
-        heading.classList.add("game_heading");
-        this.gameBoard.append(heading);
-
-
-        this.resetGame();
+    getElement() {
+        return this.container;
     }
-
 }
 
 /*class StartScreen {
@@ -128,22 +149,31 @@ class PuzzleGame {
     //
 }*/
 
+/*Screen Main
+* */
+class ScreenMain {
 
-const puzzleObject = new PuzzleGame(document.getElementsByClassName("game_board")[0], 15);
-const startButton = document.getElementById("start_restart_btn");
-const resetButton = document.getElementById("reset_btn");
+}
 
-puzzleObject.createTilesGameBoard();
-puzzleObject.renderTiles();
-console.log(puzzleObject.victoryDetect());
+const appContainer = document.getElementById("screen_main");
+const gameBoardNew = new GameBoard(appContainer);
+const puzzleGame = new PuzzleGame(gameBoardNew.getElement(), 15);
 
-startButton.addEventListener("click", () => {
-    puzzleObject.startGame();
-});
 
-resetButton.addEventListener("click", () => {
-    puzzleObject.resetGame();
-});
+// const startButton = document.getElementById("start_restart_btn");
+// const resetButton = document.getElementById("reset_btn");
+
+puzzleGame.createTilesGameBoard();
+puzzleGame.renderTiles();
+console.log(puzzleGame.victoryDetect());
+
+// startButton.addEventListener("click", () => {
+//     puzzleGameObject.startGame();
+// });
+//
+// resetButton.addEventListener("click", () => {
+//     puzzleGameObject.resetGame();
+// });
 
 
 // 1. Нужно добавить пустую клетку в массив. Желательно, добавлять ее после шафлинга в конце и находиться она будет тогда на последней ячейке
