@@ -1,6 +1,11 @@
 "use strict"
 
 class PuzzleGame {
+    state = {
+        isGameLaunched: false,
+        isGamePaused: false,
+        isGameOver: false,
+    };
     gameBoard;
     tableSize;
     cells = [];
@@ -82,12 +87,34 @@ class PuzzleGame {
         if (this.victoryDetect()) {
             setTimeout(() => {
                 alert("Congrats!!!");
+                this.state.isGameOver = true;
             }, 0);
         }
     }
+
+    resetGame() {
+        this.state.isGameOver = false;
+        this.createTilesGameBoard();
+        this.renderTiles();
+    }
+
+    startGame() {
+        this.state.isGameLaunched = true;
+
+        // Clear the content
+        this.gameBoard.innerHTML = "";
+        const heading = document.createElement("h1");
+        heading.textContent = "Fifteen Game";
+        heading.classList.add("game_heading");
+        this.gameBoard.append(heading);
+
+
+        this.resetGame();
+    }
+
 }
 
-class StartScreen {
+/*class StartScreen {
     startScreen = document.getElementsByClassName("screen_container");
     title = "Welcome to Fifteen Game";
 
@@ -96,16 +123,27 @@ class StartScreen {
         this.startScreen = startScreen;
         this.title = title;
     }
+
     // Создать стартовый экран с дивом и заголовком
     //
-}
-
+}*/
 
 
 const puzzleObject = new PuzzleGame(document.getElementsByClassName("game_board")[0], 15);
+const startButton = document.getElementById("start_restart_btn");
+const resetButton = document.getElementById("reset_btn");
+
 puzzleObject.createTilesGameBoard();
 puzzleObject.renderTiles();
 console.log(puzzleObject.victoryDetect());
+
+startButton.addEventListener("click", () => {
+    puzzleObject.startGame();
+});
+
+resetButton.addEventListener("click", () => {
+    puzzleObject.resetGame();
+});
 
 
 // 1. Нужно добавить пустую клетку в массив. Желательно, добавлять ее после шафлинга в конце и находиться она будет тогда на последней ячейке
