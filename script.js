@@ -30,18 +30,106 @@ class PuzzleGame {
 
 }*/
 
-class PuzzleGame {
+/*Coздать класс ScreenManager
+* который будет выполнять логику свитчинга экранов с помощью replaceWith()
+*  currentScreen это обьект ScreenManager класса который отвечает за текущий на данный момент экран
+*  */
 
-    // 1. Create div and classList.add game_board style
+class ScreenManager {
+    currentScreen = null;
+
+    setInitialScreen(initialScreen) {
+        document.body.appendChild(initialScreen);
+        this.currentScreen = initialScreen;
+    }
+
+    switchTo(newScreen) {
+        if (this.currentScreen) {
+            this.currentScreen.replaceWith(newScreen);
+        } else {
+            document.body.appendChild(newScreen);
+        }
+        this.currentScreen = newScreen;
+    }
+}
+
+
+class GameBoardScreen {
+    constructor(gameBoard) {
+        this.gameBoard = gameBoard;
+        this.element = this.createScreen();
+    }
+
+    createScreen() {
+        const container = document.createElement("div");
+        container.classList.add("game_board_container");
+
+        container.appendChild(this.gameBoard.getElement());
+
+        const backButton = document.createElement("button");
+        backButton.textContent = "Back to Start";
+        backButton.addEventListener("click", () => {
+            if (this.onBackCallback) this.onBackCallback();
+        });
+        container.appendChild(backButton);
+
+        return container;
+    }
+
+    get() {
+        return this.element;
+    }
+}
+
+
+class PuzzleGame {
+    state = {
+        isGameLaunched: false,
+        isGamePaused: false,
+        isGameOver: false,
+    };
 
     gameBoard;
-    tableSize;
-    cells = [];
+    screenManager;
+    startScreen;
 
-
-    constructor(gameBoard, tableSize = 15) {
+    constructor(gameBoard, screenManager) {
         this.gameBoard = gameBoard;
+        this.screenManager = screenManager;
+    }
+
+    startGame() {
+        const gameBoardScreen = new GameBoardScreen(this.gameBoard);
+        this.screenManager.switchTo(gameBoardScreen.get());
+        this.gameBoard.createTilesGameBoard();
+        this.gameBoard.renderTiles();
+    }
+
+    showStartScreen() {
+        const startScreen = new StartScreen(() => this.startGame());
+        this.screenManager.switchTo(startScreen.get());
+    }
+}
+
+// Start game logic
+// проверка на стэйт игры, isGameLaunched
+// свитчинг экранов с помощью screenManager
+
+class GameBoard {
+    container;
+    cells = [];
+    tableSize;
+
+
+    constructor(parentElement, tableSize = 15) {
+        this.container = document.createElement("div");
+        this.container.classList.add("game_board");
+        parentElement.append(this.container);
         this.tableSize = tableSize;
+    }
+
+    getElement() {
+        return this.container;
     }
 
     createTilesGameBoard() {
@@ -71,7 +159,7 @@ class PuzzleGame {
 
     renderTiles() {
         for (let i = 0; i < this.cells.length; i++) {
-            this.gameBoard.append(this.cells[i]);
+            this.container.append(this.cells[i]);
         }
     }
 
@@ -121,59 +209,85 @@ class PuzzleGame {
     }
 }
 
-class GameBoard {
-    container;
-
-    constructor(parentElement) {
-        this.container = document.createElement("div");
-        this.container.classList.add("game_board");
-        parentElement.append(this.container);
+class StartScreen {
+    constructor() {
+        this.element = this.createScreen();
     }
 
-    getElement() {
-        return this.container;
+    createScreen() {
+        const container = document.createElement("div");
+        container.classList.add("screen_container");
+
+        const title = document.createElement("h1");
+        title.textContent = "Fifteen Game";
+        container.appendChild(title);
+
+        return container;
+    }
+
+    get() {
+        return this.element;
     }
 }
 
-/*class StartScreen {
-    startScreen = document.getElementsByClassName("screen_container");
-    title = "Welcome to Fifteen Game";
 
-
-    constructor(startScreen, title) {
-        this.startScreen = startScreen;
-        this.title = title;
-    }
-
-    // Создать стартовый экран с дивом и заголовком
-    //
-}*/
-
-/*Screen Main
-* */
-class ScreenMain {
-
-}
-
-const appContainer = document.getElementById("screen_main");
-const gameBoardNew = new GameBoard(appContainer);
-const puzzleGame = new PuzzleGame(gameBoardNew.getElement(), 15);
-
-
+// const appContainer = document.getElementById("screen_main");
+// const gameBoard = new GameBoard(appContainer, 15);
+// const screenManager = new ScreenManager();
+//
+//
+// const startScreen = new StartScreen(() => {
+//     puzzleGame.startGame();
+// });
+// screenManager.setInitialScreen(startScreen);
+// document.body.append(startScreen.get());
+//
+// const puzzleGame = new PuzzleGame(gameBoard, screenManager, startScreen);
+//
+//
 // const startButton = document.getElementById("start_restart_btn");
 // const resetButton = document.getElementById("reset_btn");
-
-puzzleGame.createTilesGameBoard();
-puzzleGame.renderTiles();
-console.log(puzzleGame.victoryDetect());
-
+//
+//
 // startButton.addEventListener("click", () => {
-//     puzzleGameObject.startGame();
+//     puzzleGame.startGame();
 // });
 //
 // resetButton.addEventListener("click", () => {
-//     puzzleGameObject.resetGame();
+//     puzzleGame.showStartScreen();
 // });
+//
+//
+//
+// puzzleGame.showStartScreen();
+
+// ScreenManager
+const screenManager = new ScreenManager();
+
+// Start Screen
+const startScreen = new StartScreen();
+screenManager.setInitialScreen(startScreen.get()); // Set the Start Screen as the initial screen
+
+// "Start/Restart" button
+const startRestartButton = document.getElementById("start_restart_btn");
+
+// game board container
+const gameBoardContainer = document.createElement("div");
+document.body.appendChild(gameBoardContainer);
+
+// GameBoard and PuzzleGame
+const gameBoard = new GameBoard(gameBoardContainer, 15);
+const puzzleGame = new PuzzleGame(gameBoard, screenManager);
+
+// "Start/Restart" button
+startRestartButton.addEventListener("click", () => {
+    puzzleGame.startGame(); // Start the game when the button is clicked
+});
+
+
+// gameBoard.createTilesGameBoard();
+// gameBoard.renderTiles();
+// console.log(gameBoard.victoryDetect());
 
 
 // 1. Нужно добавить пустую клетку в массив. Желательно, добавлять ее после шафлинга в конце и находиться она будет тогда на последней ячейке
