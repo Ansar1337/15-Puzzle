@@ -39,7 +39,7 @@ class ScreenManager {
     currentScreen = null;
 
     setInitialScreen(initialScreen) {
-        document.body.appendChild(initialScreen);
+        document.body.append(initialScreen);
         this.currentScreen = initialScreen;
     }
 
@@ -47,14 +47,14 @@ class ScreenManager {
         if (this.currentScreen) {
             this.currentScreen.replaceWith(newScreen);
         } else {
-            document.body.appendChild(newScreen);
+            document.body.append(newScreen);
         }
         this.currentScreen = newScreen;
     }
 }
 
 
-class GameBoardScreen {
+/*class GameBoardScreen {
     constructor(gameBoard) {
         this.gameBoard = gameBoard;
         this.element = this.createScreen();
@@ -66,12 +66,6 @@ class GameBoardScreen {
 
         container.appendChild(this.gameBoard.getElement());
 
-        const backButton = document.createElement("button");
-        backButton.textContent = "Back to Start";
-        backButton.addEventListener("click", () => {
-            if (this.onBackCallback) this.onBackCallback();
-        });
-        container.appendChild(backButton);
 
         return container;
     }
@@ -79,28 +73,42 @@ class GameBoardScreen {
     get() {
         return this.element;
     }
-}
+}*/
 
 
 class PuzzleGame {
     state = {
-        isGameLaunched: false,
+        isGameStarted: false,
         isGamePaused: false,
         isGameOver: false,
     };
 
     gameBoard;
     screenManager;
-    startScreen;
 
-    constructor(gameBoard, screenManager) {
-        this.gameBoard = gameBoard;
-        this.screenManager = screenManager;
+    constructor() {
+        this.gameBoard = new GameBoard();
+        this.screenManager = new ScreenManager();
+    }
+
+    init() {
+        const startScreen = new StartScreen();
+        this.screenManager.setInitialScreen(startScreen.get());
     }
 
     startGame() {
-        const gameBoardScreen = new GameBoardScreen(this.gameBoard);
-        this.screenManager.switchTo(gameBoardScreen.get());
+        this.state.isGameStarted = true;
+
+        this.gameBoard.createTilesGameBoard();
+        this.gameBoard.renderTiles();
+        this.screenManager.switchTo(this.gameBoard.get());
+    }
+
+    restartGame() {
+        if (!this.state.isGameStarted) {
+            return;
+        }
+
         this.gameBoard.createTilesGameBoard();
         this.gameBoard.renderTiles();
     }
@@ -121,11 +129,16 @@ class GameBoard {
     tableSize;
 
 
-    constructor(parentElement, tableSize = 15) {
-        this.container = document.createElement("div");
-        this.container.classList.add("game_board");
-        parentElement.append(this.container);
-        this.tableSize = tableSize;
+    constructor() {
+        this.container = this.createScreen();
+        this.tableSize = 15;
+    }
+
+    createScreen() {
+        const container = document.createElement("div");
+        container.classList.add("game_board");
+
+        return container;
     }
 
     getElement() {
@@ -261,28 +274,17 @@ class StartScreen {
 //
 // puzzleGame.showStartScreen();
 
-// ScreenManager
-const screenManager = new ScreenManager();
+// Puzzle Game Init
+(new PuzzleGame()).init();
 
-// Start Screen
-const startScreen = new StartScreen();
-screenManager.setInitialScreen(startScreen.get()); // Set the Start Screen as the initial screen
 
 // "Start/Restart" button
 const startRestartButton = document.getElementById("start_restart_btn");
-
-// game board container
-const gameBoardContainer = document.createElement("div");
-document.body.appendChild(gameBoardContainer);
-
-// GameBoard and PuzzleGame
-const gameBoard = new GameBoard(gameBoardContainer, 15);
-const puzzleGame = new PuzzleGame(gameBoard, screenManager);
-
-// "Start/Restart" button
-startRestartButton.addEventListener("click", () => {
-    puzzleGame.startGame(); // Start the game when the button is clicked
-});
+//
+//
+// startRestartButton.addEventListener("click", () => {
+//     puzzleGame.startGame(); // Start the game when the button is clicked
+// });
 
 
 // gameBoard.createTilesGameBoard();
