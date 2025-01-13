@@ -1,22 +1,21 @@
 "use strict"
 
-
+// reference screen_container into ScreenManager
 class ScreenManager {
     currentScreen = null;
+    container;
+
+    constructor(container) {
+        this.container = container;
+    }
 
     setInitialScreen(initialScreen) {
-        if (this.currentScreen) {
-            this.currentScreen.remove(); // Remove the current screen
-        }
-        document.body.append(initialScreen); // Add the initial screen
+        this.container.append(initialScreen);
         this.currentScreen = initialScreen;
     }
 
     switchTo(newScreen) {
-        if (this.currentScreen) {
-            this.currentScreen.remove(); // Remove the current screen
-        }
-        document.body.append(newScreen); // Add the new screen
+        this.currentScreen.replaceWith(newScreen); // replace current screen with new screen
         this.currentScreen = newScreen;
     }
 }
@@ -32,12 +31,12 @@ class PuzzleGame {
 
     constructor() {
         this.gameBoard = new GameBoard();
-        this.screenManager = new ScreenManager();
+        this.screenManager = new ScreenManager(document.getElementById("screen_main"));
     }
 
     init() {
         // Set up the initial Start Screen
-        const startScreen = new StartScreen(() => this.startGame());
+        const startScreen = new StartScreen();
         this.screenManager.setInitialScreen(startScreen.get());
 
         // Add event listeners to buttons
@@ -75,7 +74,7 @@ class PuzzleGame {
         this.state.isGameStarted = false;
 
         // Return to the Start Screen
-        const startScreen = new StartScreen(() => this.startGame());
+        const startScreen = new StartScreen();
         this.screenManager.switchTo(startScreen.get());
     }
 }
@@ -140,6 +139,51 @@ class GameBoard {
         this.cells.forEach((cell) => this.container.appendChild(cell));
     }
 
+    victoryDetect() {
+        for (let i = 0; i <= this.cells.length - 1; i++) {
+            if (this.cells[i].textContent !== (i + 1).toString()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    moveTile(clickedTile) {
+        const rowSize = Math.sqrt(this.cells.length);
+        const emptyTileIndex = this.cells.findIndex((tile) => {
+            return tile.dataset.number === (this.cells.length).toString();
+        });
+        const clickedTileIndex = this.cells.indexOf(clickedTile);
+
+        const validMoves = [
+            emptyTileIndex - 1, // Left
+            emptyTileIndex + 1, // Right
+            emptyTileIndex - Math.sqrt(this.cells.length), // Up
+            emptyTileIndex + Math.sqrt(this.cells.length)  // Down
+        ];
+        const isSameRow = (index1, index2) =>
+            Math.floor(index1 / rowSize) === Math.floor(index2 / rowSize);
+
+        const isValidMove = validMoves.includes(clickedTileIndex) &&
+            (isSameRow(emptyTileIndex, clickedTileIndex) ||
+                (emptyTileIndex - clickedTileIndex === rowSize || // up
+                    clickedTileIndex - emptyTileIndex === rowSize)); // down
+
+
+        if (isValidMove) {
+            // Swap tiles
+            [this.cells[emptyTileIndex], this.cells[clickedTileIndex]] = [this.cells[clickedTileIndex], this.cells[emptyTileIndex]];
+            this.renderTiles();
+        }
+
+        if (this.victoryDetect()) {
+            setTimeout(() => {
+                alert("Congrats!!!");
+                // this.state.isGameOver = true;
+            }, 0);
+        }
+    }
+
     reset() {
         this.cells = [];
         this.container.innerHTML = "";
@@ -154,7 +198,7 @@ class StartScreen {
 
     createScreen() {
         const container = document.createElement("div");
-        container.classList.add("screen_container");
+        container.classList.add("start_screen");
 
         const title = document.createElement("h1");
         title.textContent = "Fifteen Game";
