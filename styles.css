@@ -89,3 +89,19 @@ body {
     opacity: 0;
     cursor: unset;
 }
+
+.top15_screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+    overflow: auto;
+}
+
+h1 {
+    font-size: 25px;
+}

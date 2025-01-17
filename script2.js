@@ -51,6 +51,9 @@ class PuzzleGame {
 
         const resetButton = document.getElementById("reset_btn");
         resetButton.addEventListener("click", () => this.showStartScreen());
+
+        const leaderboardButton = document.getElementById("leaderboard-btn");
+        leaderboardButton.addEventListener("click", () => this.showLeaderboard());
     }
 
     startGame() {
@@ -76,6 +79,11 @@ class PuzzleGame {
         // Return to the Start Screen
         const startScreen = new StartScreen();
         this.screenManager.switchTo(startScreen.get());
+    }
+
+    showLeaderboard() {
+        const top15Screen = new Top15_Screen();
+        this.screenManager.switchTo(top15Screen.get());
     }
 }
 
@@ -203,7 +211,37 @@ class StartScreen {
         const title = document.createElement("h1");
         title.textContent = "Fifteen Game";
 
-        container.appendChild(title);
+        container.append(title);
+
+        return container;
+    }
+
+    get() {
+        return this.element;
+    }
+}
+
+class Top15_Screen {
+    constructor() {
+        this.element = this.createScreen();
+    }
+
+    createScreen() {
+        const container = document.createElement("div");
+        container.classList.add("top15_screen");
+
+        const title = document.createElement("h1");
+        title.textContent = "Top 15 Players";
+
+        const list = document.createElement("ol");
+        for (let i = 1; i <= 15; i++) {
+            const listItem = document.createElement("li");
+            listItem.textContent = `Player ${i} - ${Math.floor(Math.random() * 1000)} points`;
+            list.append(listItem);
+        }
+
+        container.append(title);
+        container.append(list);
 
         return container;
     }
