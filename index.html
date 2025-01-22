@@ -33,38 +33,97 @@
         <button id="reset_btn">Сброс</button>
     </div>
 
+    <button id="timer_start">Timer_Start</button>
+    <button id="timer_pause">Timer_Pause</button>
+    <button id="timer_stop">Timer_Stop</button>
+
 </div>
 <!--<script src="script2.js"></script>-->
-
+<!--BUG
+0. При повторном нажатии на кнопку старт запускается новый таймер
+1. Паузнотое время должно учитываться при повторном нажатии на кнопку старт
+1.
+2. -->
 <script>
-    let startTime = 0;
-    let passedTime = 0;
+    class Timer {
+        startTime = Date.now();
+        timeInterval;
+        paused = false;
+        running = false;
+        time = 0;
 
-    // function updateTime() {
-    //     // const now = Date.now() - startTime
-    //     const now = new Date(new Date().getTime() - startTime);
-    //     const minutes = now.getUTCMinutes();
-    //     const seconds = now.getUTCSeconds();
-    //     document.getElementById("time").textContent = `${minutes}:${seconds}`.toString();
-    // }
+        constructor() {
+
+        }
+
+        startTimer() {
+            if (this.running) {
+                console.log("Таймер уже работает");
+                return;
+            }
+            this.running = true;
+            this.paused = false;
+
+            const startTime = Date.now();
+
+            this.timeInterval = setInterval(() => {
+                // const currentTime2 = this.time + this.startTime;
+                const currentTime = Date.now();
+                const passedTime = new Date(currentTime - startTime);
+
+                const minutes = (passedTime.getUTCMinutes()).toString().padStart(2, '0');
+                const seconds = (passedTime.getUTCSeconds()).toString().padStart(2, '0');
+
+                console.log(document.getElementById("time").textContent = `${minutes}:${seconds}`);
+            }, 1000);
+        }
+
+        pauseTimer() {
+            this.paused = true;
+            this.running = false;
+            clearInterval(this.timeInterval);
+            const currentTime = new Date();
+            this.time = currentTime - this.startTime;
+        }
+
+        stopTimer() {
+            clearInterval(this.timeInterval);
+        }
+    }
+
+    const timer_start = document.getElementById('timer_start');
+    const timer_pause = document.getElementById('timer_pause');
+    const timer_stop = document.getElementById('timer_stop');
+
+    const timeObject = new Timer();
+
+    timer_start.addEventListener('click', () => {
+        timeObject.startTimer();
+
+    });
+
+    timer_pause.addEventListener('click', () => {
+        timeObject.pauseTimer();
+    });
+
+    timer_stop.addEventListener('click', () => {
+        timeObject.stopTimer();
+    });
 
     function startTimer() {
+
         const startTime = new Date();
 
-        const interval = setInterval(() => {
+        return setInterval(() => {
             const currentTime = new Date();
             const passedTime = new Date(currentTime - startTime);
 
-            const minutes = String(passedTime.getUTCMinutes());
-            const seconds = String(passedTime.getUTCSeconds());
+            const minutes = (passedTime.getUTCMinutes()).toString().padStart(2, '0');
+            const seconds = (passedTime.getUTCSeconds()).toString().padStart(2, '0');
 
-            console.log(`${minutes}:${seconds}`);
+            console.log(document.getElementById("time").textContent = `${minutes}:${seconds}`);
         }, 1000);
-        return interval;
     }
-
-    const timeInterval = startTimer();
-    // updateTime();
 </script>
 
 </body>
