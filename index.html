@@ -34,6 +34,38 @@
     </div>
 
 </div>
-<script src="script2.js"></script>
+<!--<script src="script2.js"></script>-->
+
+<script>
+    let startTime = 0;
+    let passedTime = 0;
+
+    // function updateTime() {
+    //     // const now = Date.now() - startTime
+    //     const now = new Date(new Date().getTime() - startTime);
+    //     const minutes = now.getUTCMinutes();
+    //     const seconds = now.getUTCSeconds();
+    //     document.getElementById("time").textContent = `${minutes}:${seconds}`.toString();
+    // }
+
+    function startTimer() {
+        const startTime = new Date();
+
+        const interval = setInterval(() => {
+            const currentTime = new Date();
+            const passedTime = new Date(currentTime - startTime);
+
+            const minutes = String(passedTime.getUTCMinutes());
+            const seconds = String(passedTime.getUTCSeconds());
+
+            console.log(`${minutes}:${seconds}`);
+        }, 1000);
+        return passedTime;
+    }
+
+    const timeInterval = startTimer();
+    // updateTime();
+</script>
+
 </body>
 </html>

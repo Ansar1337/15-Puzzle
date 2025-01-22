@@ -20,7 +20,9 @@ class ScreenManager {
     }
 }
 
-
+// 1. Timer
+// 2. Move count
+// Передавать в контейнеры
 class PuzzleGame {
     state = {
         isGameStarted: false,
@@ -54,6 +56,10 @@ class PuzzleGame {
 
         const leaderboardButton = document.getElementById("leaderboard-btn");
         leaderboardButton.addEventListener("click", () => this.showLeaderboard());
+    }
+
+    updateTime() {
+        const now = new Date();
     }
 
     startGame() {
