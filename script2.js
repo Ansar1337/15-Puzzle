@@ -30,16 +30,20 @@ class PuzzleGame {
 
     gameBoard;
     screenManager;
+    timer;
+    startScreen;
+    leaderBoard;
 
     constructor() {
-        this.gameBoard = new GameBoard();
+        this.startScreen = new StartScreen(this);
+        this.gameBoard = new GameBoard(this);
         this.screenManager = new ScreenManager(document.getElementById("screen_main"));
+        this.leaderBoard = new Top15_Screen(this);
+        this.timer = new Timer(document.getElementById("time"));
     }
 
     init() {
-        // Set up the initial Start Screen
-        const startScreen = new StartScreen();
-        this.screenManager.setInitialScreen(startScreen.get());
+        this.screenManager.setInitialScreen(this.startScreen.get());
 
         // Add event listeners to buttons
         const startRestartButton = document.getElementById("start_restart_btn");
@@ -95,11 +99,13 @@ class PuzzleGame {
 
 
 class GameBoard {
+    gameObject;
     container;
     cells = [];
     tableSize;
 
-    constructor() {
+    constructor(gameObject) {
+        this.gameObject = gameObject;
         this.container = this.createScreen();
         this.tableSize = 15; // 15 tiles
     }
@@ -205,9 +211,12 @@ class GameBoard {
 }
 
 class StartScreen {
-    constructor(onStartCallback) {
-        this.onStartCallback = onStartCallback;
+    gameObject;
+    element;
+
+    constructor(gameObject) {
         this.element = this.createScreen();
+        this.gameObject = gameObject;
     }
 
     createScreen() {
@@ -228,8 +237,12 @@ class StartScreen {
 }
 
 class Top15_Screen {
-    constructor() {
+    gameObject;
+    element;
+
+    constructor(gameObject) {
         this.element = this.createScreen();
+        this.gameObject = gameObject;
     }
 
     createScreen() {
@@ -257,5 +270,67 @@ class Top15_Screen {
     }
 }
 
+class Timer {
+    startTime;
+    passedTime = 0;
+    timeInterval;
+    paused = false;
+    running = false;
+    object;
+
+    constructor(object) {
+        this.object = object;
+    }
+
+    renderTimer() {
+        const minutes = (this.passedTime.getUTCMinutes()).toString().padStart(2, '0');
+        const seconds = (this.passedTime.getUTCSeconds()).toString().padStart(2, '0');
+        this.object.textContent = `${minutes}:${seconds}`;
+    }
+
+    startTimer() {
+        if (this.running) {
+            console.log("Таймер уже работает");
+            return;
+        }
+        this.running = true;
+        this.paused = false;
+
+        this.timeInterval = setInterval(() => {
+            const currentTime = Date.now();
+            this.passedTime = new Date(currentTime - this.startTime);
+            this.renderTimer();
+        }, 1000);
+        this.startTime = Date.now() - this.passedTime;
+    }
+
+    pauseTimer() {
+        this.paused = true;
+        this.running = false;
+        clearInterval(this.timeInterval);
+    }
+
+    stopTimer() {
+        this.paused = false;
+        this.running = false;
+        this.resetTimer();
+        clearInterval(this.timeInterval);
+    }
+
+    resetTimer(resetView = false) {
+        this.startTime = Date.now();
+        this.passedTime = new Date(0);
+        if (resetView) {
+            this.renderTimer();
+        }
+    }
+}
+
 // Initialize the PuzzleGame
 (new PuzzleGame()).init();
+
+// HW
+// 1. Timer on start btn game
+// 2. Reset timer functionality
+// 3. Click on Start -> Pause functionality
+// 4. Switching to other screens should pause the timer
