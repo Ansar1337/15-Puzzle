@@ -41,9 +41,7 @@
 </div>
 <!--<script src="script2.js"></script>-->
 <!--BUG
-0. При повторном нажатии на кнопку старт запускается новый таймер
-1. Паузнотое время должно учитываться при повторном нажатии на кнопку старт
-2. Cтартовое время это Date.now - прошедшее время
+0. Создать "общий" метод "renderTimer" который будет отвечать за все манипуляции с временем (старт,рестарт,пауза и тд)
 1.
 2. -->
 <script>
@@ -59,6 +57,12 @@
             this.object = object;
         }
 
+        renderTimer() {
+            const minutes = (this.passedTime.getUTCMinutes()).toString().padStart(2, '0');
+            const seconds = (this.passedTime.getUTCSeconds()).toString().padStart(2, '0');
+            this.object.textContent = `${minutes}:${seconds}`;
+        }
+
         startTimer() {
             if (this.running) {
                 console.log("Таймер уже работает");
@@ -67,18 +71,12 @@
             this.running = true;
             this.paused = false;
 
-
-            this.startTime = Date.now() - this.passedTime;
-
             this.timeInterval = setInterval(() => {
                 const currentTime = Date.now();
                 this.passedTime = new Date(currentTime - this.startTime);
-
-                const minutes = (this.passedTime.getUTCMinutes()).toString().padStart(2, '0');
-                const seconds = (this.passedTime.getUTCSeconds()).toString().padStart(2, '0');
-
-                this.object.textContent = `${minutes}:${seconds}`;
+                this.renderTimer();
             }, 1000);
+            this.startTime = Date.now() - this.passedTime;
         }
 
         pauseTimer() {
@@ -94,9 +92,12 @@
             clearInterval(this.timeInterval);
         }
 
-        resetTimer() {
+        resetTimer(resetView = false) {
             this.startTime = Date.now();
-            this.passedTime = 0;
+            this.passedTime = new Date(0);
+            if (resetView) {
+                this.renderTimer();
+            }
         }
     }
 
@@ -121,7 +122,7 @@
     });
 
     timer_reset.addEventListener('click', () => {
-        timeObject.resetTimer();
+        timeObject.resetTimer(true);
     });
 
 </script>
