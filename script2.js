@@ -1,6 +1,7 @@
 "use strict"
 
-// reference screen_container into ScreenManager
+// referenced screen_container into ScreenManager  // +
+// Передавать в контейнеры                         // +
 class ScreenManager {
     currentScreen = null;
     container;
@@ -20,12 +21,15 @@ class ScreenManager {
     }
 }
 
-// 1. Timer
-// 2. Move count
-// Передавать в контейнеры
+// 1. GameBoard freeze while isGamePaused: true            // +
+// 1.1  not rendering tiles while isGamePaused: true       // -
+// 1.2
+// 2. Move count                                           // -
+
 class PuzzleGame {
     state = {
         isGameStarted: false,
+        isGamePaused: false,
     };
 
     gameBoard;
@@ -50,6 +54,14 @@ class PuzzleGame {
         startRestartButton.addEventListener("click", () => {
             if (!this.state.isGameStarted) {
                 this.startGame();
+                this.state.isGamePaused = false;
+                this.timer.startTimer();
+                startRestartButton.textContent = "Pause";
+            } else if (!this.state.isGamePaused) {
+                this.state.isGamePaused = true;
+                this.state.isGameStarted = false;
+                this.timer.pauseTimer();
+                startRestartButton.textContent = "Start";
             } else {
                 this.restartGame();
             }
@@ -70,6 +82,9 @@ class PuzzleGame {
         this.state.isGameStarted = true;
 
         // Initialize the game board and display it
+        if (this.state.isGamePaused) {
+            return;
+        }
         this.gameBoard.createTilesGameBoard();
         this.gameBoard.renderTiles();
         this.screenManager.switchTo(this.gameBoard.getElement());
@@ -77,10 +92,12 @@ class PuzzleGame {
 
     restartGame() {
         this.state.isGameStarted = false;
+        // this.state.isGamePaused = false;
 
         // Reset the game board
-        this.gameBoard.reset();
-        this.startGame();
+            this.gameBoard.reset();
+            this.startGame();
+
     }
 
     showStartScreen() {
@@ -190,7 +207,7 @@ class GameBoard {
                     clickedTileIndex - emptyTileIndex === rowSize)); // down
 
 
-        if (isValidMove) {
+        if (isValidMove && !this.gameObject.state.isGamePaused) {
             // Swap tiles
             [this.cells[emptyTileIndex], this.cells[clickedTileIndex]] = [this.cells[clickedTileIndex], this.cells[emptyTileIndex]];
             this.renderTiles();
