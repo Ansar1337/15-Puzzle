@@ -22,9 +22,16 @@ class ScreenManager {
 }
 
 // 1. GameBoard freeze while isGamePaused: true            // +
-// 1.1  not rendering tiles while isGamePaused: true       // -
-// 1.2
+// 1.1  not rendering tiles while isGamePaused: true       // +
+// 1. 2 Сбрасывать таймер при нажатии на кнопку Сброс      // +
+
 // 2. Move count                                           // -
+// 2.1 Считать ходы при каждом нажатии на тайл              // -
+// 2.2 Создать счетчик ходов в PuzzleGame  который будет инкрементироваться в случае валидного хода из геймборд. // -
+
+
+// 2.1 Общий метод для обработки стейтов для избежании комбиноторики.  // -
+
 
 class PuzzleGame {
     state = {
@@ -37,6 +44,8 @@ class PuzzleGame {
     timer;
     startScreen;
     leaderBoard;
+    moves;
+
 
     constructor() {
         this.startScreen = new StartScreen(this);
@@ -48,6 +57,13 @@ class PuzzleGame {
 
     init() {
         this.screenManager.setInitialScreen(this.startScreen.get());
+        // this.moves = document.getElementById("moves");
+        // const movesCount = document.getElementById("moves");
+        // if (this.gameBoard.moveTile(this.moves)) {
+        //     movesCount += 1;
+        // }
+        // this.moves.textContent = `${this.t}`;
+
 
         // Add event listeners to buttons
         const startRestartButton = document.getElementById("start_restart_btn");
@@ -63,15 +79,33 @@ class PuzzleGame {
                 this.timer.pauseTimer();
                 startRestartButton.textContent = "Start";
             } else {
+                startRestartButton.textContent = "Start";
                 this.restartGame();
+
             }
         });
 
         const resetButton = document.getElementById("reset_btn");
-        resetButton.addEventListener("click", () => this.showStartScreen());
+        resetButton.addEventListener("click", () => {
+            this.state.isGameStarted = false;
+            this.state.isGamePaused = false;
+            this.showStartScreen();
+            this.timer.stopTimer();
+            this.timer.renderTimer();
+            const button = document.getElementById("start_restart_btn");
+            button.textContent = "Start";
+        });
+
 
         const leaderboardButton = document.getElementById("leaderboard-btn");
-        leaderboardButton.addEventListener("click", () => this.showLeaderboard());
+        leaderboardButton.addEventListener("click", () => {
+            const button = document.getElementById("start_restart_btn");
+            button.textContent = "Start";
+            this.state.isGamePaused = true;
+            this.state.isGameStarted = false;
+            this.timer.pauseTimer();
+            this.showLeaderboard();
+        });
     }
 
     updateTime() {
@@ -80,23 +114,27 @@ class PuzzleGame {
 
     startGame() {
         this.state.isGameStarted = true;
-
+        this.screenManager.switchTo(this.gameBoard.getElement());
         // Initialize the game board and display it
         if (this.state.isGamePaused) {
             return;
         }
         this.gameBoard.createTilesGameBoard();
         this.gameBoard.renderTiles();
-        this.screenManager.switchTo(this.gameBoard.getElement());
     }
 
     restartGame() {
+        // const button = document.getElementById("start_restart_btn");
+        // button.addEventListener("click", () => {
+        //     button.textContent = "Start";
+        // });
+
         this.state.isGameStarted = false;
         // this.state.isGamePaused = false;
 
         // Reset the game board
-            this.gameBoard.reset();
-            this.startGame();
+        this.gameBoard.reset();
+        this.startGame();
 
     }
 
