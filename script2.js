@@ -27,7 +27,7 @@ class ScreenManager {
 
 // 2. Move count                                           // -
 // 2.1 Считать ходы при каждом нажатии на тайл              // -
-// 2.2 Создать счетчик ходов в PuzzleGame  который будет инкрементироваться в случае валидного хода из геймборд. // -
+// 2.2 Создать счетчик ходов в PuzzleGame который будет инкрементироваться в случае валидного хода из геймборд. // -
 
 
 // 2.1 Общий метод для обработки стейтов для избежании комбиноторики.  // -
@@ -57,13 +57,6 @@ class PuzzleGame {
 
     init() {
         this.screenManager.setInitialScreen(this.startScreen.get());
-        // this.moves = document.getElementById("moves");
-        // const movesCount = document.getElementById("moves");
-        // if (this.gameBoard.moveTile(this.moves)) {
-        //     movesCount += 1;
-        // }
-        // this.moves.textContent = `${this.t}`;
-
 
         // Add event listeners to buttons
         const startRestartButton = document.getElementById("start_restart_btn");
@@ -81,12 +74,13 @@ class PuzzleGame {
             } else {
                 startRestartButton.textContent = "Start";
                 this.restartGame();
-
             }
         });
 
         const resetButton = document.getElementById("reset_btn");
         resetButton.addEventListener("click", () => {
+            document.getElementById("moves").textContent = "0";
+            this.moves = 0;
             this.state.isGameStarted = false;
             this.state.isGamePaused = false;
             this.showStartScreen();
@@ -95,7 +89,6 @@ class PuzzleGame {
             const button = document.getElementById("start_restart_btn");
             button.textContent = "Start";
         });
-
 
         const leaderboardButton = document.getElementById("leaderboard-btn");
         leaderboardButton.addEventListener("click", () => {
@@ -121,21 +114,21 @@ class PuzzleGame {
         }
         this.gameBoard.createTilesGameBoard();
         this.gameBoard.renderTiles();
+        this.moves = 0;
+    }
+
+    movesCount() {
+        let movesCount = document.getElementById("moves");
+        movesCount.textContent = `${this.moves += 1}`;
     }
 
     restartGame() {
-        // const button = document.getElementById("start_restart_btn");
-        // button.addEventListener("click", () => {
-        //     button.textContent = "Start";
-        // });
-
         this.state.isGameStarted = false;
         // this.state.isGamePaused = false;
 
         // Reset the game board
         this.gameBoard.reset();
         this.startGame();
-
     }
 
     showStartScreen() {
@@ -249,6 +242,7 @@ class GameBoard {
             // Swap tiles
             [this.cells[emptyTileIndex], this.cells[clickedTileIndex]] = [this.cells[clickedTileIndex], this.cells[emptyTileIndex]];
             this.renderTiles();
+            this.gameObject.movesCount();     // M1
         }
 
         if (this.victoryDetect()) {
