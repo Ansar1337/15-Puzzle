@@ -25,12 +25,14 @@ class ScreenManager {
 // 1.1  not rendering tiles while isGamePaused: true       // +
 // 1. 2 Сбрасывать таймер при нажатии на кнопку Сброс      // +
 
-// 2. Move count                                           // -
-// 2.1 Считать ходы при каждом нажатии на тайл              // -
-// 2.2 Создать счетчик ходов в PuzzleGame который будет инкрементироваться в случае валидного хода из геймборд. // -
+// 2. Move count                                           // +
+// 2.1 Считать ходы при каждом нажатии на тайл              // +
+// 2.2 Создать счетчик ходов в PuzzleGame который будет инкрементироваться в случае валидного хода из геймборд. // +
 
 
-// 2.1 Общий метод для обработки стейтов для избежании комбиноторики.  // -
+// 3. Общий метод для обработки стейтов для избежании комбиноторики.  // -
+// 3.1 StartScreen не отоброжается при переходе от Top15Screen       //  -
+// 3.2 Сохронять состояние игры после перехода на Top15Screen        // -
 
 
 class PuzzleGame {
@@ -44,7 +46,9 @@ class PuzzleGame {
     timer;
     startScreen;
     leaderBoard;
+    endScreen;
     moves;
+    time;
 
 
     constructor() {
@@ -53,6 +57,7 @@ class PuzzleGame {
         this.screenManager = new ScreenManager(document.getElementById("screen_main"));
         this.leaderBoard = new Top15_Screen(this);
         this.timer = new Timer(document.getElementById("time"));
+        this.endScreen = new EndScreen(this);
     }
 
     init() {
@@ -66,15 +71,28 @@ class PuzzleGame {
                 this.state.isGamePaused = false;
                 this.timer.startTimer();
                 startRestartButton.textContent = "Pause";
-            } else if (!this.state.isGamePaused) {
+            } else if (!this.state.isGamePaused && this.state.isGameStarted) {
                 this.state.isGamePaused = true;
-                this.state.isGameStarted = false;
+                this.time = document.getElementById("time");
                 this.timer.pauseTimer();
                 startRestartButton.textContent = "Start";
+            } else if (this.state.isGamePaused && this.state.isGameStarted) {
+                this.state.isGamePaused = false;
+                this.timer.startTimer();
+                startRestartButton.textContent = "Pause";
+                this.screenManager.switchTo(this.gameBoard.getElement());
+                this.gameBoard.renderTiles();
             } else {
                 startRestartButton.textContent = "Start";
                 this.restartGame();
             }
+
+            // OLD CODE
+            // else if (!this.state.isGamePaused) {
+            //     this.state.isGamePaused = true;
+            //     this.state.isGameStarted = false;
+            //     this.timer.pauseTimer();
+            //     startRestartButton.textContent = "Start";
         });
 
         const resetButton = document.getElementById("reset_btn");
@@ -95,7 +113,7 @@ class PuzzleGame {
             const button = document.getElementById("start_restart_btn");
             button.textContent = "Start";
             this.state.isGamePaused = true;
-            this.state.isGameStarted = false;
+            // this.state.isGameStarted = false;
             this.timer.pauseTimer();
             this.showLeaderboard();
         });
@@ -109,11 +127,13 @@ class PuzzleGame {
         this.state.isGameStarted = true;
         this.screenManager.switchTo(this.gameBoard.getElement());
         // Initialize the game board and display it
+        this.gameBoard.createTilesGameBoard();
+        this.gameBoard.renderTiles();
+
         if (this.state.isGamePaused) {
             return;
         }
-        this.gameBoard.createTilesGameBoard();
-        this.gameBoard.renderTiles();
+
         this.moves = 0;
     }
 
@@ -135,13 +155,26 @@ class PuzzleGame {
         this.state.isGameStarted = false;
 
         // Return to the Start Screen
-        const startScreen = new StartScreen();
-        this.screenManager.switchTo(startScreen.get());
+        // const startScreen = new StartScreen();
+        this.screenManager.switchTo(this.startScreen.get());
     }
 
     showLeaderboard() {
-        const top15Screen = new Top15_Screen();
-        this.screenManager.switchTo(top15Screen.get());
+        // const top15Screen = new Top15_Screen();
+
+        this.leaderBoard.createScreen();
+        this.screenManager.switchTo(this.leaderBoard.get());
+    }
+
+    showEndScreen() {
+        this.screenManager.switchTo(this.endScreen.get());
+        this.timer.stopTimer();
+        const score = document.getElementsByClassName("score")[0];
+        score.textContent = this.scoreCount();
+    }
+
+    scoreCount() {
+        return this.moves + Math.round(+this.timer.passedTime / 1000);
     }
 }
 
@@ -177,10 +210,10 @@ class GameBoard {
             this.cells.push(this.createTile(i + 1));
         }
 
-        for (let i = this.cells.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [this.cells[i], this.cells[j]] = [this.cells[j], this.cells[i]];
-        }
+        // for (let i = this.cells.length - 1; i > 0; i--) {
+        //     const j = Math.floor(Math.random() * (i + 1));
+        //     [this.cells[i], this.cells[j]] = [this.cells[j], this.cells[i]];
+        // }
 
         // Add the empty tile
         this.cells.push(this.createTile(this.tableSize + 1));
@@ -217,6 +250,10 @@ class GameBoard {
     }
 
     moveTile(clickedTile) {
+        if (this.gameObject.state.isGamePaused) {
+            return;
+        }
+
         const rowSize = Math.sqrt(this.cells.length);
         const emptyTileIndex = this.cells.findIndex((tile) => {
             return tile.dataset.number === (this.cells.length).toString();
@@ -238,7 +275,7 @@ class GameBoard {
                     clickedTileIndex - emptyTileIndex === rowSize)); // down
 
 
-        if (isValidMove && !this.gameObject.state.isGamePaused) {
+        if (isValidMove) {
             // Swap tiles
             [this.cells[emptyTileIndex], this.cells[clickedTileIndex]] = [this.cells[clickedTileIndex], this.cells[emptyTileIndex]];
             this.renderTiles();
@@ -248,7 +285,7 @@ class GameBoard {
         if (this.victoryDetect()) {
             setTimeout(() => {
                 alert("Congrats!!!");
-                // this.state.isGameOver = true;
+                this.gameObject.showEndScreen();
             }, 0);
         }
     }
@@ -302,14 +339,67 @@ class Top15_Screen {
         title.textContent = "Top 15 Players";
 
         const list = document.createElement("ol");
-        for (let i = 1; i <= 15; i++) {
-            const listItem = document.createElement("li");
-            listItem.textContent = `Player ${i} - ${Math.floor(Math.random() * 1000)} points`;
-            list.append(listItem);
-        }
+        fetch('http://localhost:3000/api/get_top_players')
+            .then(response => response.json())
+            .then(data => {
+                for (let i = 0; i < data.length; i++) {
+                    const listItem = document.createElement("li");
+                    listItem.textContent = `${data[i].name} - ${data[i].scores} points`;
+                    list.append(listItem);
+                }
+            })
+            .catch(error => console.error('Error:', error));
 
         container.append(title);
         container.append(list);
+
+        return container;
+    }
+
+    get() {
+        return this.element;
+    }
+}
+
+class EndScreen {
+    gameObject;
+    element;
+
+    constructor(gameObject) {
+        this.element = this.createScreen();
+        this.gameObject = gameObject;
+    }
+
+    createScreen() {
+        const container = document.createElement("div");
+        container.classList.add("end_screen");
+        const title = document.createElement("h1");
+        title.textContent = "Congrats!!! Enter Your Name Below";
+        const inputName = document.createElement("input");
+        inputName.setAttribute("type", "text");
+        const button = document.createElement("button");
+
+        button.addEventListener("click", () => {
+            fetch('http://localhost:3000/api/add_player', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({name: inputName.value, scores: this.gameObject.scoreCount()})
+            }).then(response => response.json())
+                .then(data => console.log(data))
+                .catch(error => console.error('Error:', error));
+            this.gameObject.showLeaderboard();
+        });
+
+        button.textContent = "Submit";
+        const score = document.createElement("div");
+        score.classList.add("score");
+
+        container.append(title);
+        container.append(inputName);
+        container.append(button);
+        container.append(score);
 
         return container;
     }
@@ -326,6 +416,7 @@ class Timer {
     paused = false;
     running = false;
     object;
+    time;
 
     constructor(object) {
         this.object = object;
@@ -368,7 +459,7 @@ class Timer {
 
     resetTimer(resetView = false) {
         this.startTime = Date.now();
-        this.passedTime = new Date(0);
+        // this.passedTime = new Date(0);
         if (resetView) {
             this.renderTimer();
         }
@@ -378,8 +469,22 @@ class Timer {
 // Initialize the PuzzleGame
 (new PuzzleGame()).init();
 
-// HW
-// 1. Timer on start btn game
-// 2. Reset timer functionality
-// 3. Click on Start -> Pause functionality
-// 4. Switching to other screens should pause the timer
+
+/*// Server
+GET players
+fetch('http://localhost:3000/api/get_top_players')
+    .then(response => response.json())
+    .then(data => console.log(data))
+    .catch(error => console.error('Error:', error));
+
+POST players
+fetch('http://localhost:3000/api/add_player', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ name: 'Ansar', scores: 10})
+}).then(response => response.json())
+    .then(data => console.log(data))
+    .catch(error => console.error('Error:', error));
+*/
