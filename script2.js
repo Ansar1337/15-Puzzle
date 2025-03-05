@@ -30,9 +30,7 @@ class ScreenManager {
 // 2.2 Создать счетчик ходов в PuzzleGame который будет инкрементироваться в случае валидного хода из геймборд. // +
 
 
-// 3. Общий метод для обработки стейтов для избежании комбиноторики.  // -
-// 3.1 StartScreen не отоброжается при переходе от Top15Screen       //  -
-// 3.2 Сохронять состояние игры после перехода на Top15Screen        // -
+// 3. При переходе от Top15_Screen в PuzzleGame счетчик ходов = NaN
 
 
 class PuzzleGame {
@@ -113,7 +111,6 @@ class PuzzleGame {
             const button = document.getElementById("start_restart_btn");
             button.textContent = "Start";
             this.state.isGamePaused = true;
-            // this.state.isGameStarted = false;
             this.timer.pauseTimer();
             this.showLeaderboard();
         });
@@ -129,11 +126,6 @@ class PuzzleGame {
         // Initialize the game board and display it
         this.gameBoard.createTilesGameBoard();
         this.gameBoard.renderTiles();
-
-        if (this.state.isGamePaused) {
-            return;
-        }
-
         this.moves = 0;
     }
 
@@ -153,17 +145,12 @@ class PuzzleGame {
 
     showStartScreen() {
         this.state.isGameStarted = false;
-
-        // Return to the Start Screen
-        // const startScreen = new StartScreen();
         this.screenManager.switchTo(this.startScreen.get());
     }
 
     showLeaderboard() {
-        // const top15Screen = new Top15_Screen();
-
-        this.leaderBoard.createScreen();
         this.screenManager.switchTo(this.leaderBoard.get());
+        this.leaderBoard.getLeaderBoardPlayers();
     }
 
     showEndScreen() {
@@ -339,21 +326,27 @@ class Top15_Screen {
         title.textContent = "Top 15 Players";
 
         const list = document.createElement("ol");
-        fetch('http://localhost:3000/api/get_top_players')
-            .then(response => response.json())
-            .then(data => {
-                for (let i = 0; i < data.length; i++) {
-                    const listItem = document.createElement("li");
-                    listItem.textContent = `${data[i].name} - ${data[i].scores} points`;
-                    list.append(listItem);
-                }
-            })
-            .catch(error => console.error('Error:', error));
+        list.id = "list_15";
 
         container.append(title);
         container.append(list);
 
         return container;
+    }
+
+    getLeaderBoardPlayers() {
+        fetch('http://localhost:3000/api/get_top_players')
+            .then(response => response.json())
+            .then(data => {
+                const listElement = document.getElementById("list_15");
+                listElement.textContent = "";
+                for (let i = 0; i < data.length; i++) {
+                    const listItem = document.createElement("li");
+                    listItem.textContent = `${data[i].name} - ${data[i].scores} points`;
+                    listElement.append(listItem);
+                }
+            })
+            .catch(error => console.error('Error:', error));
     }
 
     get() {
