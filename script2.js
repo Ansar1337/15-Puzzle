@@ -84,13 +84,6 @@ class PuzzleGame {
                 startRestartButton.textContent = "Start";
                 this.restartGame();
             }
-
-            // OLD CODE
-            // else if (!this.state.isGamePaused) {
-            //     this.state.isGamePaused = true;
-            //     this.state.isGameStarted = false;
-            //     this.timer.pauseTimer();
-            //     startRestartButton.textContent = "Start";
         });
 
         const resetButton = document.getElementById("reset_btn");
@@ -127,6 +120,7 @@ class PuzzleGame {
         this.gameBoard.createTilesGameBoard();
         this.gameBoard.renderTiles();
         this.moves = 0;
+        document.getElementById("moves").textContent = "0";
     }
 
     movesCount() {
@@ -149,15 +143,20 @@ class PuzzleGame {
     }
 
     showLeaderboard() {
-        this.screenManager.switchTo(this.leaderBoard.get());
-        this.leaderBoard.getLeaderBoardPlayers();
+        this.endScreen.writer.then(() => {
+            this.screenManager.switchTo(this.leaderBoard.get());
+            this.leaderBoard.getLeaderBoardPlayers();
+        });
     }
 
     showEndScreen() {
         this.screenManager.switchTo(this.endScreen.get());
+        this.state.isGameStarted = false;
         this.timer.stopTimer();
         const score = document.getElementsByClassName("score")[0];
         score.textContent = this.scoreCount();
+        const button = document.getElementById("start_restart_btn");
+        button.textContent = "Start";
     }
 
     scoreCount() {
@@ -357,6 +356,7 @@ class Top15_Screen {
 class EndScreen {
     gameObject;
     element;
+    writer = Promise.resolve();
 
     constructor(gameObject) {
         this.element = this.createScreen();
@@ -373,18 +373,23 @@ class EndScreen {
         const button = document.createElement("button");
 
         button.addEventListener("click", () => {
-            fetch('http://localhost:3000/api/add_player', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({name: inputName.value, scores: this.gameObject.scoreCount()})
-            }).then(response => response.json())
+            this.writer =
+                fetch('http://localhost:3000/api/add_player', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({name: inputName.value, scores: this.gameObject.scoreCount()})
+                });
+
+            this.writer
+                .then(response => response.json())
                 .then(data => {
-                    console.log(data)
-                    this.gameObject.showLeaderboard();
+                    console.log(data);
                 })
                 .catch(error => console.error('Error:', error));
+
+            this.gameObject.showLeaderboard();
         });
 
         button.textContent = "Submit";
@@ -454,7 +459,7 @@ class Timer {
 
     resetTimer(resetView = false) {
         this.startTime = Date.now();
-        // this.passedTime = new Date(0);
+        this.passedTime = new Date(0);
         if (resetView) {
             this.renderTimer();
         }
