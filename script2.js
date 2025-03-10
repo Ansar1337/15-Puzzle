@@ -380,9 +380,11 @@ class EndScreen {
                 },
                 body: JSON.stringify({name: inputName.value, scores: this.gameObject.scoreCount()})
             }).then(response => response.json())
-                .then(data => console.log(data))
+                .then(data => {
+                    console.log(data)
+                    this.gameObject.showLeaderboard();
+                })
                 .catch(error => console.error('Error:', error));
-            this.gameObject.showLeaderboard();
         });
 
         button.textContent = "Submit";
