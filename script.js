@@ -1,146 +1,199 @@
 "use strict"
 
-/*
-class PuzzleGame {
-    state = {
-        isGameLaunched: false,
-        isGamePaused: false,
-        isGameOver: false,
-    };
+import {localization} from "./locals/localization.js";
 
-    resetGame() {
-        this.state.isGameOver = false;
-        this.createTilesGameBoard();
-        this.renderTiles();
-    }
+// referenced screen_container into ScreenManager  // +
+// Передавать в контейнеры                         // +
 
-    startGame() {
-        this.state.isGameLaunched = true;
-
-        // Clear the content
-        this.gameBoard.innerHTML = "";
-        const heading = document.createElement("h1");
-        heading.textContent = "Fifteen Game";
-        heading.classList.add("game_heading");
-        this.gameBoard.append(heading);
-
-
-        this.resetGame();
-    }
-
-}*/
-
-/*Coздать класс ScreenManager
-* который будет выполнять логику свитчинга экранов с помощью replaceWith()
-*  currentScreen это обьект ScreenManager класса который отвечает за текущий на данный момент экран
-*  */
+// window.localization = localization;
+// console.log(localization);
 
 class ScreenManager {
     currentScreen = null;
+    container;
+
+    constructor(container) {
+        this.container = container;
+    }
 
     setInitialScreen(initialScreen) {
-        document.body.append(initialScreen);
+        this.container.append(initialScreen);
         this.currentScreen = initialScreen;
     }
 
     switchTo(newScreen) {
-        if (this.currentScreen) {
-            this.currentScreen.replaceWith(newScreen);
-        } else {
-            document.body.append(newScreen);
-        }
+        this.currentScreen.replaceWith(newScreen); // replace current screen with new screen
         this.currentScreen = newScreen;
     }
 }
 
+// 1. GameBoard freeze while isGamePaused: true            // +
+// 1.1  not rendering tiles while isGamePaused: true       // +
+// 1. 2 Сбрасывать таймер при нажатии на кнопку Сброс      // +
 
-/*class GameBoardScreen {
-    constructor(gameBoard) {
-        this.gameBoard = gameBoard;
-        this.element = this.createScreen();
-    }
-
-    createScreen() {
-        const container = document.createElement("div");
-        container.classList.add("game_board_container");
-
-        container.appendChild(this.gameBoard.getElement());
+// 2. Move count                                           // +
+// 2.1 Считать ходы при каждом нажатии на тайл              // +
+// 2.2 Создать счетчик ходов в PuzzleGame который будет инкрементироваться в случае валидного хода из геймборд. // +
 
 
-        return container;
-    }
-
-    get() {
-        return this.element;
-    }
-}*/
+// 3. При переходе от Top15_Screen в PuzzleGame счетчик ходов = NaN
+const localLang = "ru";
 
 
 class PuzzleGame {
     state = {
         isGameStarted: false,
         isGamePaused: false,
-        isGameOver: false,
     };
 
     gameBoard;
     screenManager;
     timer;
     startScreen;
+    leaderBoard;
+    endScreen;
+    moves;
+    time;
+
 
     constructor() {
-        this.startScreen = new StartScreen();
-        this.gameBoard = new GameBoard();
-        this.screenManager = new ScreenManager();
-        this.timer = new Timer();
+        this.startScreen = new StartScreen(this);
+        this.gameBoard = new GameBoard(this);
+        this.screenManager = new ScreenManager(document.getElementById("screen_main"));
+        this.leaderBoard = new Top15_Screen(this);
+        this.timer = new Timer(document.getElementById("time"));
+        this.endScreen = new EndScreen(this);
     }
 
     init() {
         this.screenManager.setInitialScreen(this.startScreen.get());
+
+        // Add event listeners to buttons
+        const startRestartButton = document.getElementById("start_restart_btn");
+        startRestartButton.addEventListener("click", () => {
+            if (!this.state.isGameStarted) {
+                this.startGame();
+                this.state.isGamePaused = false;
+                this.timer.startTimer();
+                startRestartButton.textContent = localization[localLang].start_label;
+            } else if (!this.state.isGamePaused && this.state.isGameStarted) {
+                this.state.isGamePaused = true;
+                this.time = document.getElementById("time");
+                this.timer.pauseTimer();
+                startRestartButton.textContent = localization[localLang].start_label;
+            } else if (this.state.isGamePaused && this.state.isGameStarted) {
+                this.state.isGamePaused = false;
+                this.timer.startTimer();
+                startRestartButton.textContent = localization[localLang].pause_label;
+                this.screenManager.switchTo(this.gameBoard.getElement());
+                this.gameBoard.renderTiles();
+            } else {
+                startRestartButton.textContent = localization[localLang].start_label;
+                this.restartGame();
+            }
+        });
+
+        const resetButton = document.getElementById("reset_btn");
+        resetButton.addEventListener("click", () => {
+            document.getElementById("moves").textContent = "0";
+            this.moves = 0;
+            this.state.isGameStarted = false;
+            this.state.isGamePaused = false;
+            this.showStartScreen();
+            this.timer.stopTimer();
+            this.timer.renderTimer();
+            const button = document.getElementById("start_restart_btn");
+            button.textContent = localization[localLang].start_label;
+        });
+
+        const leaderboardButton = document.getElementById("leaderboard-btn");
+        leaderboardButton.textContent = localization[localLang].top15_label;
+        leaderboardButton.addEventListener("click", () => {
+            const button = document.getElementById("start_restart_btn");
+            button.textContent = localization[localLang].start_label;
+            this.state.isGamePaused = true;
+            this.timer.pauseTimer();
+            this.showLeaderboard();
+        });
+
+        const movesLabel = document.getElementById("moves_label");
+        movesLabel.textContent = localization[localLang].moves_label;
+
+        const timeLabel = document.getElementById("time_label");
+        timeLabel.textContent = localization[localLang].time_label;
+    }
+
+    updateTime() {
+        const now = new Date();
     }
 
     startGame() {
         this.state.isGameStarted = true;
-
+        this.screenManager.switchTo(this.gameBoard.getElement());
+        // Initialize the game board and display it
         this.gameBoard.createTilesGameBoard();
         this.gameBoard.renderTiles();
-        this.screenManager.switchTo(this.gameBoard.get());
+        this.moves = 0;
+        document.getElementById("moves").textContent = "0";
+    }
+
+    movesCount() {
+        let movesCount = document.getElementById("moves");
+        movesCount.textContent = `${this.moves += 1}`;
     }
 
     restartGame() {
-        if (!this.state.isGameStarted) {
-            return;
-        }
+        this.state.isGameStarted = false;
+        // this.state.isGamePaused = false;
 
-        this.gameBoard.createTilesGameBoard();
-        this.gameBoard.renderTiles();
+        // Reset the game board
+        this.gameBoard.reset();
+        this.startGame();
     }
 
     showStartScreen() {
-        const startScreen = new StartScreen(() => this.startGame());
-        this.screenManager.switchTo(startScreen.get());
+        this.state.isGameStarted = false;
+        this.screenManager.switchTo(this.startScreen.get());
+    }
+
+    showLeaderboard() {
+        this.endScreen.writer.then(() => {
+            this.screenManager.switchTo(this.leaderBoard.get());
+            this.leaderBoard.getLeaderBoardPlayers();
+        });
+    }
+
+    showEndScreen() {
+        this.screenManager.switchTo(this.endScreen.get());
+        this.state.isGameStarted = false;
+        this.timer.stopTimer();
+        const score = document.getElementsByClassName("score")[0];
+        score.textContent = this.scoreCount();
+        const button = document.getElementById("start_restart_btn");
+        button.textContent = localization[localLang].start_label;
+    }
+
+    scoreCount() {
+        return this.moves + Math.round(+this.timer.passedTime / 1000);
     }
 }
 
-// Start game logic
-// проверка на стэйт игры, isGameLaunched
-// свитчинг экранов с помощью screenManager
 
 class GameBoard {
+    gameObject;
     container;
     cells = [];
     tableSize;
 
-
-    constructor() {
+    constructor(gameObject) {
+        this.gameObject = gameObject;
         this.container = this.createScreen();
-        this.tableSize = 15;
+        this.tableSize = 15; // 15 tiles
     }
 
     createScreen() {
         const container = document.createElement("div");
         container.classList.add("game_board");
-
         return container;
     }
 
@@ -149,14 +202,20 @@ class GameBoard {
     }
 
     createTilesGameBoard() {
+        this.cells = []; // Reset cells
+        this.container.innerHTML = ""; // Clear previous tiles
+
+        // Create tiles and shuffle
         for (let i = 0; i < this.tableSize; i++) {
             this.cells.push(this.createTile(i + 1));
         }
 
-        for (let i = this.cells.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [this.cells[i], this.cells[j]] = [this.cells[j], this.cells[i]];
-        }
+        // for (let i = this.cells.length - 1; i > 0; i--) {
+        //     const j = Math.floor(Math.random() * (i + 1));
+        //     [this.cells[i], this.cells[j]] = [this.cells[j], this.cells[i]];
+        // }
+
+        // Add the empty tile
         this.cells.push(this.createTile(this.tableSize + 1));
     }
 
@@ -165,18 +224,20 @@ class GameBoard {
         tile.classList.add("puzzle_item");
         tile.textContent = number.toString();
         tile.dataset.number = number;
+
+        // Handle tile click
         tile.addEventListener("click", () => {
             if (number !== this.cells.length + 1) {
                 this.moveTile(tile);
             }
         });
+
         return tile;
     }
 
     renderTiles() {
-        for (let i = 0; i < this.cells.length; i++) {
-            this.container.append(this.cells[i]);
-        }
+        this.container.innerHTML = ""; // Clear previous tiles
+        this.cells.forEach((cell) => this.container.appendChild(cell));
     }
 
     victoryDetect() {
@@ -189,6 +250,10 @@ class GameBoard {
     }
 
     moveTile(clickedTile) {
+        if (this.gameObject.state.isGamePaused) {
+            return;
+        }
+
         const rowSize = Math.sqrt(this.cells.length);
         const emptyTileIndex = this.cells.findIndex((tile) => {
             return tile.dataset.number === (this.cells.length).toString();
@@ -214,29 +279,40 @@ class GameBoard {
             // Swap tiles
             [this.cells[emptyTileIndex], this.cells[clickedTileIndex]] = [this.cells[clickedTileIndex], this.cells[emptyTileIndex]];
             this.renderTiles();
+            this.gameObject.movesCount();     // M1
         }
 
         if (this.victoryDetect()) {
             setTimeout(() => {
                 alert("Congrats!!!");
-                // this.state.isGameOver = true;
+                this.gameObject.showEndScreen();
             }, 0);
         }
+    }
+
+    reset() {
+        this.cells = [];
+        this.container.innerHTML = "";
     }
 }
 
 class StartScreen {
-    constructor() {
+    gameObject;
+    element;
+
+    constructor(gameObject) {
         this.element = this.createScreen();
+        this.gameObject = gameObject;
     }
 
     createScreen() {
         const container = document.createElement("div");
-        container.classList.add("screen_container");
+        container.classList.add("start_screen");
 
         const title = document.createElement("h1");
         title.textContent = "Fifteen Game";
-        container.appendChild(title);
+
+        container.append(title);
 
         return container;
     }
@@ -246,84 +322,183 @@ class StartScreen {
     }
 }
 
-// const appContainer = document.getElementById("screen_main");
-// const gameBoard = new GameBoard(appContainer, 15);
-// const screenManager = new ScreenManager();
-//
-//
-// const startScreen = new StartScreen(() => {
-//     puzzleGame.startGame();
-// });
-// screenManager.setInitialScreen(startScreen);
-// document.body.append(startScreen.get());
-//
-// const puzzleGame = new PuzzleGame(gameBoard, screenManager, startScreen);
-//
-//
-// const startButton = document.getElementById("start_restart_btn");
-// const resetButton = document.getElementById("reset_btn");
-//
-//
-// startButton.addEventListener("click", () => {
-//     puzzleGame.startGame();
-// });
-//
-// resetButton.addEventListener("click", () => {
-//     puzzleGame.showStartScreen();
-// });
-//
-//
-//
-// puzzleGame.showStartScreen();
+class Top15_Screen {
+    gameObject;
+    element;
 
-// Puzzle Game Init
+    constructor(gameObject) {
+        this.element = this.createScreen();
+        this.gameObject = gameObject;
+    }
+
+    createScreen() {
+        const container = document.createElement("div");
+        container.classList.add("top15_screen");
+
+        const title = document.createElement("h1");
+        title.textContent = "Top 15 Players";
+
+        const list = document.createElement("ol");
+        list.id = "list_15";
+
+        container.append(title);
+        container.append(list);
+
+        return container;
+    }
+
+    getLeaderBoardPlayers() {
+        fetch('http://localhost:3000/api/get_top_players')
+            .then(response => response.json())
+            .then(data => {
+                const listElement = document.getElementById("list_15");
+                listElement.textContent = "";
+                for (let i = 0; i < data.length; i++) {
+                    const listItem = document.createElement("li");
+                    listItem.textContent = `${data[i].name} - ${data[i].scores} points`;
+                    listElement.append(listItem);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    get() {
+        return this.element;
+    }
+}
+
+class EndScreen {
+    gameObject;
+    element;
+    writer = Promise.resolve();
+
+    constructor(gameObject) {
+        this.element = this.createScreen();
+        this.gameObject = gameObject;
+    }
+
+    createScreen() {
+        const container = document.createElement("div");
+        container.classList.add("end_screen");
+        const title = document.createElement("h1");
+        title.textContent = "Congrats!!! Enter Your Name Below";
+        const inputName = document.createElement("input");
+        inputName.setAttribute("type", "text");
+        const button = document.createElement("button");
+
+        button.addEventListener("click", () => {
+            this.writer =
+                fetch('http://localhost:3000/api/add_player', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({name: inputName.value, scores: this.gameObject.scoreCount()})
+                });
+
+            this.writer
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                })
+                .catch(error => console.error('Error:', error));
+
+            this.gameObject.showLeaderboard();
+        });
+
+        button.textContent = localization[localLang].submit_label;
+        const score = document.createElement("div");
+        score.classList.add("score");
+
+        container.append(title);
+        container.append(inputName);
+        container.append(button);
+        container.append(score);
+
+        return container;
+    }
+
+    get() {
+        return this.element;
+    }
+}
+
+class Timer {
+    startTime;
+    passedTime = 0;
+    timeInterval;
+    paused = false;
+    running = false;
+    object;
+    time;
+
+    constructor(object) {
+        this.object = object;
+    }
+
+    renderTimer() {
+        const minutes = (this.passedTime.getUTCMinutes()).toString().padStart(2, '0');
+        const seconds = (this.passedTime.getUTCSeconds()).toString().padStart(2, '0');
+        this.object.textContent = `${minutes}:${seconds}`;
+    }
+
+    startTimer() {
+        if (this.running) {
+            console.log("Таймер уже работает");
+            return;
+        }
+        this.running = true;
+        this.paused = false;
+
+        this.timeInterval = setInterval(() => {
+            const currentTime = Date.now();
+            this.passedTime = new Date(currentTime - this.startTime);
+            this.renderTimer();
+        }, 1000);
+        this.startTime = Date.now() - this.passedTime;
+    }
+
+    pauseTimer() {
+        this.paused = true;
+        this.running = false;
+        clearInterval(this.timeInterval);
+    }
+
+    stopTimer() {
+        this.paused = false;
+        this.running = false;
+        this.resetTimer();
+        clearInterval(this.timeInterval);
+    }
+
+    resetTimer(resetView = false) {
+        this.startTime = Date.now();
+        this.passedTime = new Date(0);
+        if (resetView) {
+            this.renderTimer();
+        }
+    }
+}
+
+// Initialize the PuzzleGame
 (new PuzzleGame()).init();
 
-//
 
+/*// Server
+GET players
+fetch('http://localhost:3000/api/get_top_players')
+    .then(response => response.json())
+    .then(data => console.log(data))
+    .catch(error => console.error('Error:', error));
 
-// "Start/Restart" button
-const startRestartButton = document.getElementById("start_restart_btn");
-
-
-startRestartButton.addEventListener("click", () => {
-    const timer = new Timer();
-    timer.startTimer();
-});
-//
-//
-// startRestartButton.addEventListener("click", () => {
-//     puzzleGame.startGame(); // Start the game when the button is clicked
-// });
-
-
-// gameBoard.createTilesGameBoard();
-// gameBoard.renderTiles();
-// console.log(gameBoard.victoryDetect());
-
-
-// 1. Нужно добавить пустую клетку в массив. Желательно, добавлять ее после шафлинга в конце и находиться она будет тогда на последней ячейке
-// 2. Примерный метод перемещения по массиву:
-//     +1 = right, -1 = left, +4 = down, -4= up
-// 3. Так как пустая клетка только одна, кликнутая нами клетка может занять только ее одно место, при успешном проходе вышеперечисленного условия клетка свапается местами с пустой клеткой.
-// 4. Валидация победы: Когда числа идут от наименшего к наибольшому по порядку (1-15).
-// 5. Функция которая считывает позицию клеток. При клике на клетку происходит проверка из шага 2
-
-// 6. Добавить проверку на горизонтальное перемещение фишек,
-
-// const testArray = [1, 2, 3, 4, 5];
-// const testArray2 = [1, 3, 6, 7, 5];
-// const testArray3 = [1, 2, 3, 4, 6];
-//
-// function victoryDetect(array) {
-//     for (let i = 0; i <= array.length - 1; i++) {
-//         if (array[i] !== i + 1) {
-//             return false;
-//         }
-//     }
-//     return true;
-// }
-//
-// console.log(victoryDetect(testArray));
-// console.log(victoryDetect(testArray2));
-// console.log(victoryDetect(testArray3));
+POST players
+fetch('http://localhost:3000/api/add_player', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ name: 'Ansar', scores: 10})
+}).then(response => response.json())
+    .then(data => console.log(data))
+    .catch(error => console.error('Error:', error));
+*/
