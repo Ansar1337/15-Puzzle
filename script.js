@@ -37,7 +37,7 @@ class ScreenManager {
 
 
 // 3. При переходе от Top15_Screen в PuzzleGame счетчик ходов = NaN
-const localLang = "ru";
+const localLang = "en";
 
 
 class PuzzleGame {
@@ -134,6 +134,8 @@ class PuzzleGame {
         this.gameBoard.createTilesGameBoard();
         this.gameBoard.renderTiles();
         this.moves = 0;
+        this.timer.resetTimer(true);
+        this.timer.renderTimer();
         document.getElementById("moves").textContent = "0";
     }
 
@@ -166,7 +168,7 @@ class PuzzleGame {
     showEndScreen() {
         this.screenManager.switchTo(this.endScreen.get());
         this.state.isGameStarted = false;
-        this.timer.stopTimer();
+        this.timer.pauseTimer();
         const score = document.getElementsByClassName("score")[0];
         score.textContent = this.scoreCount();
         const button = document.getElementById("start_restart_btn");
@@ -467,15 +469,15 @@ class Timer {
     stopTimer() {
         this.paused = false;
         this.running = false;
-        this.resetTimer();
+        this.resetTimer(true);
         clearInterval(this.timeInterval);
     }
 
     resetTimer(resetView = false) {
         this.startTime = Date.now();
-        this.passedTime = new Date(0);
         if (resetView) {
-            this.renderTimer();
+            this.passedTime = new Date(0);
+            // this.renderTimer();
         }
     }
 }
