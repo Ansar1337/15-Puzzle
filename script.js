@@ -2,11 +2,34 @@
 
 import {localization} from "./locals/localization.js";
 
-// referenced screen_container into ScreenManager  // +
-// Передавать в контейнеры                         // +
-
 // window.localization = localization;
 // console.log(localization);
+
+let localLang = "ru";
+
+document.addEventListener("DOMContentLoaded", () => {
+    localLang = localStorage.getItem("language") || localLang;
+    const languageSelector = document.getElementById("language-selector");
+    languageSelector.value = localLang;
+
+    updateLanguage(localLang);
+
+    languageSelector.addEventListener("change", (event) => {
+        localLang = event.target.value;
+        localStorage.setItem("language", localLang);
+        updateLanguage(localLang);
+    });
+});
+
+function updateLanguage(lang) {
+    localLang = lang;
+
+    document.getElementById("start_restart_btn").textContent = localization[lang].start_label || localization[lang].pause_label;
+    document.getElementById("reset_btn").textContent = localization[lang].exit_label;
+    document.getElementById("leaderboard-btn").textContent = localization[lang].top15_label;
+    document.getElementById("moves_label").textContent = localization[lang].moves_label;
+    document.getElementById("time_label").textContent = localization[lang].time_label;
+}
 
 class ScreenManager {
     currentScreen = null;
@@ -27,19 +50,6 @@ class ScreenManager {
     }
 }
 
-// 1. GameBoard freeze while isGamePaused: true            // +
-// 1.1  not rendering tiles while isGamePaused: true       // +
-// 1. 2 Сбрасывать таймер при нажатии на кнопку Сброс      // +
-
-// 2. Move count                                           // +
-// 2.1 Считать ходы при каждом нажатии на тайл              // +
-// 2.2 Создать счетчик ходов в PuzzleGame который будет инкрементироваться в случае валидного хода из геймборд. // +
-
-
-// 3. При переходе от Top15_Screen в PuzzleGame счетчик ходов = NaN
-const localLang = "en";
-
-
 class PuzzleGame {
     state = {
         isGameStarted: false,
@@ -54,7 +64,6 @@ class PuzzleGame {
     endScreen;
     moves;
     time;
-
 
     constructor() {
         this.startScreen = new StartScreen(this);
@@ -75,7 +84,8 @@ class PuzzleGame {
                 this.startGame();
                 this.state.isGamePaused = false;
                 this.timer.startTimer();
-                startRestartButton.textContent = localization[localLang].start_label;
+                // startRestartButton.textContent = localization[localLang].start_label;
+                startRestartButton.textContent = localization[localLang].pause_label;
             } else if (!this.state.isGamePaused && this.state.isGameStarted) {
                 this.state.isGamePaused = true;
                 this.time = document.getElementById("time");
@@ -180,7 +190,6 @@ class PuzzleGame {
     }
 }
 
-
 class GameBoard {
     gameObject;
     container;
@@ -233,7 +242,6 @@ class GameBoard {
                 this.moveTile(tile);
             }
         });
-
         return tile;
     }
 
@@ -275,7 +283,6 @@ class GameBoard {
             (isSameRow(emptyTileIndex, clickedTileIndex) ||
                 (emptyTileIndex - clickedTileIndex === rowSize || // up
                     clickedTileIndex - emptyTileIndex === rowSize)); // down
-
 
         if (isValidMove) {
             // Swap tiles

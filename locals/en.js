@@ -8,4 +8,5 @@ export const enLocal = {
     "time_label": "Time:",
     "top15_label": "Top-15 players",
     "submit_label": "Submit",
+    "game_label": "Fifteen Game",
 }
