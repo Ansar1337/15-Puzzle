@@ -2,24 +2,7 @@
 
 import {localization} from "./locals/localization.js";
 
-// window.localization = localization;
-// console.log(localization);
-
 let localLang = "ru";
-
-// document.addEventListener("DOMContentLoaded", () => {
-//     localLang = localStorage.getItem("language") || localLang;
-//     const languageSelector = document.getElementById("language-selector");
-//     languageSelector.value = localLang;
-//
-//     updateLanguage(localLang);
-//
-//     languageSelector.addEventListener("change", (event) => {
-//         localLang = event.target.value;
-//         localStorage.setItem("language", localLang);
-//         updateLanguage(localLang);
-//     });
-// });
 
 class ScreenManager {
     currentScreen = null;
@@ -134,6 +117,7 @@ class PuzzleGame {
         document.getElementById("leaderboard-btn").textContent = localization[lang].top15_label;
         document.getElementById("moves_label").textContent = localization[lang].moves_label;
         document.getElementById("time_label").textContent = localization[lang].time_label;
+        document.getElementById("language-label").textContent = localization[lang].lang_label;
 
         this.startScreen.updateLanguage(lang);
     }
@@ -226,10 +210,10 @@ class GameBoard {
             this.cells.push(this.createTile(i + 1));
         }
 
-        // for (let i = this.cells.length - 1; i > 0; i--) {
-        //     const j = Math.floor(Math.random() * (i + 1));
-        //     [this.cells[i], this.cells[j]] = [this.cells[j], this.cells[i]];
-        // }
+        for (let i = this.cells.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [this.cells[i], this.cells[j]] = [this.cells[j], this.cells[i]];
+        }
 
         // Add the empty tile
         this.cells.push(this.createTile(this.tableSize + 1));

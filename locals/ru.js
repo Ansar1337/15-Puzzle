@@ -9,4 +9,5 @@ export const ruLocal = {
     "top15_label": "Топ-15 игроков",
     "submit_label": "Отправить",
     "game_label": "Игра в Пятнашки",
+    "lang_label": "Выберите Язык:"
 }

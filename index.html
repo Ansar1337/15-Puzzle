@@ -8,9 +8,9 @@
 <body>
 
 <div class="game_container">
-
     <!--Шапка-->
     <header class="game_header">
+
         <div class="info_board">
             <span>
                 <span id="moves_label">Ходы:</span>
@@ -21,12 +21,15 @@
             <span id="time">00:00</span>
             </span>
         </div>
-        <button id="leaderboard-btn">Топ-15 игроков</button>
 
-        <select id="language-selector">
-            <option value="en">English</option>
-            <option value="ru">Русский</option>
-        </select>
+        <div class="controls">
+            <label id="language-label" for="language-selector">Выберите Язык:</label>
+            <select id="language-selector">
+                <option value="en">English</option>
+                <option value="ru">Русский</option>
+            </select>
+            <button id="leaderboard-btn">Топ-15 игроков</button>
+        </div>
 
     </header>
 
