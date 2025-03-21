@@ -7,7 +7,7 @@ body {
     align-items: center;
     justify-content: center;
     margin: 0;
-    /*padding-top: 50px;*/
+    padding-top: 30px;
     background-color: #f4f4f4;
 }
 
@@ -19,14 +19,22 @@ body {
 /*Шапка*/
 .game_header {
     display: flex;
-    justify-content: space-between;
-    margin-bottom: 20px;
+    flex-direction: column;
     align-items: center;
-    flex-wrap: wrap;
+    gap: 10px;
 }
 
 .info_board {
-    font-size: 14px;
+    display: flex;
+    gap: 20px;
+    /*font-size: 14px;*/
+}
+
+.controls {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    padding-bottom: 20px;
 }
 
 #leaderboard-btn {

@@ -11,6 +11,15 @@
     <!--Шапка-->
     <header class="game_header">
 
+        <div class="controls">
+            <label id="language-label" for="language-selector">Выберите Язык:</label>
+            <select id="language-selector">
+                <option value="en">English</option>
+                <option value="ru">Русский</option>
+            </select>
+            <button id="leaderboard-btn">Топ-15 игроков</button>
+        </div>
+
         <div class="info_board">
             <span>
                 <span id="moves_label">Ходы:</span>
@@ -20,15 +29,6 @@
                 <span id="time_label">Время:</span>
             <span id="time">00:00</span>
             </span>
-        </div>
-
-        <div class="controls">
-            <label id="language-label" for="language-selector">Выберите Язык:</label>
-            <select id="language-selector">
-                <option value="en">English</option>
-                <option value="ru">Русский</option>
-            </select>
-            <button id="leaderboard-btn">Топ-15 игроков</button>
         </div>
 
     </header>
