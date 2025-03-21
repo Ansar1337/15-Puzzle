@@ -28,13 +28,13 @@ body {
     display: flex;
     gap: 20px;
     /*font-size: 14px;*/
+    padding-bottom: 20px;
 }
 
 .controls {
     display: flex;
     gap: 20px;
     align-items: center;
-    padding-bottom: 20px;
 }
 
 #leaderboard-btn {

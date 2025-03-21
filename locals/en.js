@@ -6,8 +6,8 @@ export const enLocal = {
     "exit_label": "Exit",
     "moves_label": "Moves:",
     "time_label": "Time:",
-    "top15_label": "Top-15 players",
+    "top15_label": "Top-15",
     "submit_label": "Submit",
     "game_label": "Fifteen Game",
-    "lang_label": "Choose Language:"
+    "lang_label": "Language:"
 }

@@ -6,8 +6,8 @@ export const ruLocal = {
     "exit_label": "Выход",
     "moves_label": "Ходы:",
     "time_label": "Время:",
-    "top15_label": "Топ-15 игроков",
+    "top15_label": "Топ-15",
     "submit_label": "Отправить",
     "game_label": "Игра в Пятнашки",
-    "lang_label": "Выберите Язык:"
+    "lang_label": "Язык:"
 }
