@@ -91,6 +91,13 @@ body {
     cursor: unset;
 }
 
+.start_screen {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    justify-content: center;
+}
+
 .top15_screen {
     display: flex;
     flex-direction: column;
@@ -117,7 +124,6 @@ body {
 
 h1 {
     font-size: 25px;
-    padding-top: 90px;
 }
 
 .score {

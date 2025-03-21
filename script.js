@@ -7,29 +7,19 @@ import {localization} from "./locals/localization.js";
 
 let localLang = "ru";
 
-document.addEventListener("DOMContentLoaded", () => {
-    localLang = localStorage.getItem("language") || localLang;
-    const languageSelector = document.getElementById("language-selector");
-    languageSelector.value = localLang;
-
-    updateLanguage(localLang);
-
-    languageSelector.addEventListener("change", (event) => {
-        localLang = event.target.value;
-        localStorage.setItem("language", localLang);
-        updateLanguage(localLang);
-    });
-});
-
-function updateLanguage(lang) {
-    localLang = lang;
-
-    document.getElementById("start_restart_btn").textContent = localization[lang].start_label || localization[lang].pause_label;
-    document.getElementById("reset_btn").textContent = localization[lang].exit_label;
-    document.getElementById("leaderboard-btn").textContent = localization[lang].top15_label;
-    document.getElementById("moves_label").textContent = localization[lang].moves_label;
-    document.getElementById("time_label").textContent = localization[lang].time_label;
-}
+// document.addEventListener("DOMContentLoaded", () => {
+//     localLang = localStorage.getItem("language") || localLang;
+//     const languageSelector = document.getElementById("language-selector");
+//     languageSelector.value = localLang;
+//
+//     updateLanguage(localLang);
+//
+//     languageSelector.addEventListener("change", (event) => {
+//         localLang = event.target.value;
+//         localStorage.setItem("language", localLang);
+//         updateLanguage(localLang);
+//     });
+// });
 
 class ScreenManager {
     currentScreen = null;
@@ -64,6 +54,7 @@ class PuzzleGame {
     endScreen;
     moves;
     time;
+    localLang = "ru";
 
     constructor() {
         this.startScreen = new StartScreen(this);
@@ -75,6 +66,18 @@ class PuzzleGame {
     }
 
     init() {
+        this.localLang = localStorage.getItem("language") || localLang;
+        const languageSelector = document.getElementById("language-selector");
+        languageSelector.value = localLang;
+
+        this.updateLanguage(localLang);
+
+        languageSelector.addEventListener("change", (event) => {
+            localLang = event.target.value;
+            localStorage.setItem("language", localLang);
+            this.updateLanguage(localLang);
+        });
+
         this.screenManager.setInitialScreen(this.startScreen.get());
 
         // Add event listeners to buttons
@@ -84,23 +87,19 @@ class PuzzleGame {
                 this.startGame();
                 this.state.isGamePaused = false;
                 this.timer.startTimer();
-                // startRestartButton.textContent = localization[localLang].start_label;
-                startRestartButton.textContent = localization[localLang].pause_label;
             } else if (!this.state.isGamePaused && this.state.isGameStarted) {
                 this.state.isGamePaused = true;
                 this.time = document.getElementById("time");
                 this.timer.pauseTimer();
-                startRestartButton.textContent = localization[localLang].start_label;
             } else if (this.state.isGamePaused && this.state.isGameStarted) {
                 this.state.isGamePaused = false;
                 this.timer.startTimer();
-                startRestartButton.textContent = localization[localLang].pause_label;
                 this.screenManager.switchTo(this.gameBoard.getElement());
                 this.gameBoard.renderTiles();
             } else {
-                startRestartButton.textContent = localization[localLang].start_label;
                 this.restartGame();
             }
+            this.updateLanguage(localLang);
         });
 
         const resetButton = document.getElementById("reset_btn");
@@ -112,25 +111,31 @@ class PuzzleGame {
             this.showStartScreen();
             this.timer.stopTimer();
             this.timer.renderTimer();
-            const button = document.getElementById("start_restart_btn");
-            button.textContent = localization[localLang].start_label;
         });
 
         const leaderboardButton = document.getElementById("leaderboard-btn");
         leaderboardButton.textContent = localization[localLang].top15_label;
         leaderboardButton.addEventListener("click", () => {
-            const button = document.getElementById("start_restart_btn");
-            button.textContent = localization[localLang].start_label;
             this.state.isGamePaused = true;
             this.timer.pauseTimer();
             this.showLeaderboard();
         });
+    }
 
-        const movesLabel = document.getElementById("moves_label");
-        movesLabel.textContent = localization[localLang].moves_label;
+    updateLanguage(lang) {
+        localLang = lang;
+        if ((!this.state.isGameStarted) || (this.state.isGamePaused && this.state.isGameStarted)) {
+            document.getElementById("start_restart_btn").textContent = localization[lang].start_label;
+        } else if (!this.state.isGamePaused && this.state.isGameStarted) {
+            document.getElementById("start_restart_btn").textContent = localization[lang].pause_label;
+        }
 
-        const timeLabel = document.getElementById("time_label");
-        timeLabel.textContent = localization[localLang].time_label;
+        document.getElementById("reset_btn").textContent = localization[lang].exit_label;
+        document.getElementById("leaderboard-btn").textContent = localization[lang].top15_label;
+        document.getElementById("moves_label").textContent = localization[lang].moves_label;
+        document.getElementById("time_label").textContent = localization[lang].time_label;
+
+        this.startScreen.updateLanguage(lang);
     }
 
     updateTime() {
@@ -308,6 +313,7 @@ class GameBoard {
 class StartScreen {
     gameObject;
     element;
+    components = {}
 
     constructor(gameObject) {
         this.element = this.createScreen();
@@ -315,19 +321,23 @@ class StartScreen {
     }
 
     createScreen() {
-        const container = document.createElement("div");
-        container.classList.add("start_screen");
+        this.components.container = document.createElement("div");
+        this.components.container.classList.add("start_screen");
 
-        const title = document.createElement("h1");
-        title.textContent = "Fifteen Game";
+        this.components.title = document.createElement("h1");
+        this.components.title.id = "start_screen_title";
 
-        container.append(title);
+        this.components.container.append(this.components.title);
 
-        return container;
+        return this.components.container;
     }
 
     get() {
         return this.element;
+    }
+
+    updateLanguage(lang) {
+        this.components.title.textContent = localization[lang].game_label;
     }
 }
 
