@@ -1,4 +1,5 @@
 * {
+    font-family: sans-serif !important;
     box-sizing: border-box;
 }
 
@@ -7,12 +8,14 @@ body {
     align-items: center;
     justify-content: center;
     margin: 0;
-    padding-top: 30px;
     background-color: #f4f4f4;
+    height: 100svh;
+    color: #333;
 }
 
 .game_container {
-    width: 300px;
+    /* width: 100%; */
+    /* height: 100%; */
     text-align: center;
 }
 
@@ -22,6 +25,7 @@ body {
     flex-direction: column;
     align-items: center;
     gap: 10px;
+    /* font-size: 50px; */
 }
 
 .info_board {
@@ -29,33 +33,54 @@ body {
     gap: 20px;
     /*font-size: 14px;*/
     padding-bottom: 20px;
-}
-
-.controls {
-    display: flex;
-    gap: 20px;
-    align-items: center;
+    font-size: 30px;
+    color: #333;
 }
 
 #leaderboard-btn {
-    font-size: 14px;
-    padding: 5px 10px;
+    font-size: 16px;
+    padding: 8px 16px;
     cursor: pointer;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+#leaderboard-btn:hover {
+    background-color: #0056b3;
+}
+
+#language-selector {
+    font-size: 14px;
+    border: 2px solid #007BFF;
+    border-radius: 6px;
+    background-color: white;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+#language-selector:hover {
+    background-color: #f0f0f0;
 }
 
 /*Игровая зона*/
 .screen_container {
     border: 2px solid black;
     border-radius: 10px;
-    width: 300px;
-    height: 300px;
+    width: 60vmin;
+    aspect-ratio: 1/1;
     margin-bottom: 15px;
 }
 
 .game_board {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 5px;
+    gap: 15px;
+    padding: 15px;
     justify-items: center;
     height: 100%;
     align-items: center;
@@ -67,12 +92,14 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 5px;
-    background-color: gray;
-    width: 60px;
-    height: 60px;
-    font-size: 18px;
+    border-radius: 20px;
+    background-color: #323c6b30;
+    border: 2px solid #63628d;
+    width: 100%;
+    height: 100%;
+    font-size: 350%;
     cursor: pointer;
+    color: #333;
 }
 
 .puzzle_item_empty {
@@ -87,11 +114,40 @@ body {
 }
 
 /*Кнопки*/
+.game_controls {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-evenly;
+    gap: 20px;
+}
+
 .game_controls button {
-    padding: 10px 20px;
-    font-size: 16px;
-    margin: 0 5px;
+    padding: 12px 24px;
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
     cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 120px;
+}
+
+#start_restart_btn {
+    background-color: #4CAF50;
+    color: white;
+}
+
+#start_restart_btn:hover {
+    background-color: #45a049;
+}
+
+#reset_btn {
+    background-color: #f44336;
+    color: white;
+}
+
+#reset_btn:hover {
+    background-color: #d32f2f;
 }
 
 [data-number="16"] {
