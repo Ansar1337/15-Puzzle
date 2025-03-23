@@ -117,9 +117,9 @@ class PuzzleGame {
         document.getElementById("leaderboard-btn").textContent = localization[lang].top15_label;
         document.getElementById("moves_label").textContent = localization[lang].moves_label;
         document.getElementById("time_label").textContent = localization[lang].time_label;
-        document.getElementById("language-label").textContent = localization[lang].lang_label;
 
         this.startScreen.updateLanguage(lang);
+        this.leaderBoard.updateLanguage(lang);
     }
 
     updateTime() {
@@ -297,7 +297,7 @@ class GameBoard {
 class StartScreen {
     gameObject;
     element;
-    components = {}
+    components = {};
 
     constructor(gameObject) {
         this.element = this.createScreen();
@@ -328,6 +328,7 @@ class StartScreen {
 class Top15_Screen {
     gameObject;
     element;
+    components = {};
 
     constructor(gameObject) {
         this.element = this.createScreen();
@@ -338,16 +339,19 @@ class Top15_Screen {
         const container = document.createElement("div");
         container.classList.add("top15_screen");
 
-        const title = document.createElement("h1");
-        title.textContent = "Top 15 Players";
+        this.components.title = document.createElement("h1");
 
         const list = document.createElement("ol");
         list.id = "list_15";
 
-        container.append(title);
+        container.append(this.components.title);
         container.append(list);
 
         return container;
+    }
+
+    updateLanguage(lang) {
+        this.components.title.textContent = localization[lang].top15_heading;
     }
 
     getLeaderBoardPlayers() {
