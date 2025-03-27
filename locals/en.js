@@ -10,5 +10,6 @@ export const enLocal = {
     "submit_label": "Submit",
     "game_label": "Fifteen Game",
     "lang_label": "Language:",
-    "top15_heading": "Top 15 Players"
+    "top15_heading": "Top 15 Players",
+    "end_screen_label": "Congrats!!! Enter Your Name Below"
 }

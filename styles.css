@@ -17,6 +17,12 @@ body {
     /* width: 100%; */
     /* height: 100%; */
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    align-content: center;
+    justify-content: center;
+    gap: 20px;
 }
 
 /*Шапка*/
@@ -32,7 +38,7 @@ body {
     display: flex;
     gap: 20px;
     /*font-size: 14px;*/
-    padding-bottom: 20px;
+    /* padding-bottom: 20px; */
     font-size: 30px;
     color: #333;
 }
@@ -73,7 +79,8 @@ body {
     border-radius: 10px;
     width: 60vmin;
     aspect-ratio: 1/1;
-    margin-bottom: 15px;
+    /* margin-bottom: 15px; */
+    min-width: 220px;
 }
 
 .game_board {
@@ -86,20 +93,23 @@ body {
     align-items: center;
     background-color: lightblue;
     border-radius: inherit;
+    justify-content: center;
 }
 
 .puzzle_item {
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 20px;
+    border-radius: 20%;
     background-color: #323c6b30;
     border: 2px solid #63628d;
     width: 100%;
     height: 100%;
-    font-size: 350%;
+    font-size: clamp(15px,6vmin,45px);
     cursor: pointer;
     color: #333;
+    align-content: center;
+    box-sizing: content-box;
 }
 
 .puzzle_item_empty {
@@ -115,7 +125,7 @@ body {
 
 /*Кнопки*/
 .game_controls {
-    margin-top: 20px;
+    /* margin-top: 20px; */
     display: flex;
     justify-content: space-evenly;
     gap: 20px;
@@ -178,12 +188,13 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: center;
     width: 100%;
     height: 100%;
     padding: 20px;
     box-sizing: border-box;
     overflow: auto;
+    background-color: #f4f4f4;
 }
 
 h1 {
@@ -191,5 +202,26 @@ h1 {
 }
 
 .score {
+    margin-top: 10px;
     font-size: 20px;
+}
+
+.end_screen > button {
+    padding: 8px 0;
+    margin-top: 10px;
+    font-size: 18px;
+    font-weight: bold;
+    border: 2px solid #007BFF;
+    border-radius: 6px;
+    background-color: white;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    outline: none;
+    width: 120px;
+}
+
+.end_screen > input {
+    padding: 8px 0;
+    text-align: center;
 }

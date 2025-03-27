@@ -2,8 +2,6 @@
 
 import {localization} from "./locals/localization.js";
 
-let localLang = "ru";
-
 class ScreenManager {
     currentScreen = null;
     container;
@@ -49,16 +47,16 @@ class PuzzleGame {
     }
 
     init() {
-        this.localLang = localStorage.getItem("language") || localLang;
+        this.localLang = localStorage.getItem("language") || this.localLang;
         const languageSelector = document.getElementById("language-selector");
-        languageSelector.value = localLang;
+        languageSelector.value = this.localLang;
 
-        this.updateLanguage(localLang);
+        this.updateLanguage(this.localLang);
 
         languageSelector.addEventListener("change", (event) => {
-            localLang = event.target.value;
-            localStorage.setItem("language", localLang);
-            this.updateLanguage(localLang);
+            this.localLang = event.target.value;
+            localStorage.setItem("language", this.localLang);
+            this.updateLanguage(this.localLang);
         });
 
         this.screenManager.setInitialScreen(this.startScreen.get());
@@ -82,7 +80,7 @@ class PuzzleGame {
             } else {
                 this.restartGame();
             }
-            this.updateLanguage(localLang);
+            this.updateLanguage(this.localLang);
         });
 
         const resetButton = document.getElementById("reset_btn");
@@ -97,7 +95,7 @@ class PuzzleGame {
         });
 
         const leaderboardButton = document.getElementById("leaderboard-btn");
-        leaderboardButton.textContent = localization[localLang].top15_label;
+        leaderboardButton.textContent = localization[this.localLang].top15_label;
         leaderboardButton.addEventListener("click", () => {
             this.state.isGamePaused = true;
             this.timer.pauseTimer();
@@ -106,7 +104,7 @@ class PuzzleGame {
     }
 
     updateLanguage(lang) {
-        localLang = lang;
+        this.localLang = lang;
         if ((!this.state.isGameStarted) || (this.state.isGamePaused && this.state.isGameStarted)) {
             document.getElementById("start_restart_btn").textContent = localization[lang].start_label;
         } else if (!this.state.isGamePaused && this.state.isGameStarted) {
@@ -120,6 +118,7 @@ class PuzzleGame {
 
         this.startScreen.updateLanguage(lang);
         this.leaderBoard.updateLanguage(lang);
+        this.endScreen.updateLanguage(lang);
     }
 
     updateTime() {
@@ -171,7 +170,7 @@ class PuzzleGame {
         const score = document.getElementsByClassName("score")[0];
         score.textContent = this.scoreCount();
         const button = document.getElementById("start_restart_btn");
-        button.textContent = localization[localLang].start_label;
+        button.textContent = localization[this.localLang].start_label;
     }
 
     scoreCount() {
@@ -282,7 +281,7 @@ class GameBoard {
 
         if (this.victoryDetect()) {
             setTimeout(() => {
-                alert("Congrats!!!");
+                // alert("Congrats!!!");
                 this.gameObject.showEndScreen();
             }, 0);
         }
@@ -378,6 +377,7 @@ class EndScreen {
     gameObject;
     element;
     writer = Promise.resolve();
+    components = {};
 
     constructor(gameObject) {
         this.element = this.createScreen();
@@ -387,13 +387,12 @@ class EndScreen {
     createScreen() {
         const container = document.createElement("div");
         container.classList.add("end_screen");
-        const title = document.createElement("h1");
-        title.textContent = "Congrats!!! Enter Your Name Below";
+        this.components.title = document.createElement("h1");
         const inputName = document.createElement("input");
         inputName.setAttribute("type", "text");
-        const button = document.createElement("button");
+        this.components.button = document.createElement("button");
 
-        button.addEventListener("click", () => {
+        this.components.button.addEventListener("click", () => {
             this.writer =
                 fetch('http://localhost:3000/api/add_player', {
                     method: 'POST',
@@ -413,16 +412,20 @@ class EndScreen {
             this.gameObject.showLeaderboard();
         });
 
-        button.textContent = localization[localLang].submit_label;
         const score = document.createElement("div");
         score.classList.add("score");
 
-        container.append(title);
+        container.append(this.components.title);
         container.append(inputName);
-        container.append(button);
+        container.append(this.components.button);
         container.append(score);
 
         return container;
+    }
+
+    updateLanguage(lang) {
+        this.components.button.textContent = localization[this.gameObject.localLang].submit_label;
+        this.components.title.textContent = localization[this.gameObject.localLang].end_screen_label;
     }
 
     get() {
