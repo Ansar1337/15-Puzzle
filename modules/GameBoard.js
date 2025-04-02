@@ -49,7 +49,19 @@ export class GameBoard {
         // Handle tile click
         tile.addEventListener("click", () => {
             if (number !== this.cells.length + 1) {
-                this.moveTile(tile);
+                tile.addEventListener("transitionend", () => {
+                    tile.style.transform = "scale(1)";
+                    this.moveTile(tile);
+                    console.log("Test");
+                });
+
+                tile.style.transform = "scale(0.3)";
+                tile.style.transition = "transform 0.5s ease";
+
+                // setTimeout(() => {
+                //     tile.style.transform = "scale(1)";
+                //     this.moveTile(tile);
+                // }, 500);
             }
         });
         return tile;
@@ -98,7 +110,7 @@ export class GameBoard {
             // Swap tiles
             [this.cells[emptyTileIndex], this.cells[clickedTileIndex]] = [this.cells[clickedTileIndex], this.cells[emptyTileIndex]];
             this.renderTiles();
-            this.gameObject.movesCount();     // M1
+            this.gameObject.movesCount();
         }
 
         if (this.victoryDetect()) {
