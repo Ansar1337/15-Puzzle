@@ -47,16 +47,23 @@ export class GameBoard {
         tile.dataset.number = number;
 
         // Handle tile click
-        tile.addEventListener("click", () => {
-            if (number !== this.cells.length + 1) {
-                tile.style.transform = "scale(0.3)";
-                tile.style.transition = "transform 0.5s ease";
+        tile.addEventListener("click", (e) => {
+            if (number !== this.cells.length + 1 && this.isValidMove(tile)) {
+                tile.style.transform = "scale(0)";
             }
         });
-        tile.addEventListener("transitionend", () => {
-            tile.style.transform = "scale(1)";
-            this.moveTile(tile);
-            console.log("Test");
+
+        let moveAllowed = true;
+        tile.addEventListener("transitionend", (e) => {
+            if (e.propertyName === "transform" && moveAllowed) {
+                this.moveTile(tile);
+                setTimeout(() => {
+                    moveAllowed = false;
+                    tile.style.transform = "";
+                }, 0);
+            } else if (!moveAllowed) {
+                moveAllowed = true;
+            }
         });
         return tile;
     }
@@ -80,27 +87,16 @@ export class GameBoard {
             return;
         }
 
-        const rowSize = Math.sqrt(this.cells.length);
+        // finding empty tile
         const emptyTileIndex = this.cells.findIndex((tile) => {
             return tile.dataset.number === (this.cells.length).toString();
         });
+
+        // defining index of clicked tile
         const clickedTileIndex = this.cells.indexOf(clickedTile);
 
-        const validMoves = [
-            emptyTileIndex - 1, // Left
-            emptyTileIndex + 1, // Right
-            emptyTileIndex - Math.sqrt(this.cells.length), // Up
-            emptyTileIndex + Math.sqrt(this.cells.length)  // Down
-        ];
-        const isSameRow = (index1, index2) =>
-            Math.floor(index1 / rowSize) === Math.floor(index2 / rowSize);
-
-        const isValidMove = validMoves.includes(clickedTileIndex) &&
-            (isSameRow(emptyTileIndex, clickedTileIndex) ||
-                (emptyTileIndex - clickedTileIndex === rowSize || // up
-                    clickedTileIndex - emptyTileIndex === rowSize)); // down
-
-        if (isValidMove) {
+        // swapping of tiles
+        if (this.isValidMove(clickedTile)) {
             // Swap tiles
             [this.cells[emptyTileIndex], this.cells[clickedTileIndex]] = [this.cells[clickedTileIndex], this.cells[emptyTileIndex]];
             this.renderTiles();
@@ -118,5 +114,32 @@ export class GameBoard {
     reset() {
         this.cells = [];
         this.container.innerHTML = "";
+    }
+
+    isValidMove(clickedTile) {
+        const rowSize = Math.sqrt(this.cells.length);
+
+        const emptyTileIndex = this.cells.findIndex((tile) => {
+            return tile.dataset.number === (this.cells.length).toString();
+        });
+
+        const clickedTileIndex = this.cells.indexOf(clickedTile);
+
+        // array of valid moves
+        const validMoves = [
+            emptyTileIndex - 1, // Left
+            emptyTileIndex + 1, // Right
+            emptyTileIndex - Math.sqrt(this.cells.length), // Up
+            emptyTileIndex + Math.sqrt(this.cells.length)  // Down
+        ];
+
+        const isSameRow = (index1, index2) =>
+            Math.floor(index1 / rowSize) === Math.floor(index2 / rowSize);
+
+        // returning validMove with checks on click index and same row
+        return validMoves.includes(clickedTileIndex) &&
+            (isSameRow(emptyTileIndex, clickedTileIndex) ||
+                (emptyTileIndex - clickedTileIndex === rowSize || // up
+                    clickedTileIndex - emptyTileIndex === rowSize)); // down
     }
 }
