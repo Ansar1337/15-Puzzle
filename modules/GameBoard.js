@@ -49,20 +49,14 @@ export class GameBoard {
         // Handle tile click
         tile.addEventListener("click", () => {
             if (number !== this.cells.length + 1) {
-                tile.addEventListener("transitionend", () => {
-                    tile.style.transform = "scale(1)";
-                    this.moveTile(tile);
-                    console.log("Test");
-                });
-
                 tile.style.transform = "scale(0.3)";
                 tile.style.transition = "transform 0.5s ease";
-
-                // setTimeout(() => {
-                //     tile.style.transform = "scale(1)";
-                //     this.moveTile(tile);
-                // }, 500);
             }
+        });
+        tile.addEventListener("transitionend", () => {
+            tile.style.transform = "scale(1)";
+            this.moveTile(tile);
+            console.log("Test");
         });
         return tile;
     }
