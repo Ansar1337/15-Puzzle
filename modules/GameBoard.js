@@ -40,6 +40,10 @@ export class GameBoard {
         this.cells.push(this.createTile(this.tableSize + 1));
     }
 
+// 1. Анимация на клик
+    // 2. При клике тайл должен слайдится в валидное направление (right, left, top, bottom)
+    // 3. Вычисление координат через getBoundingClientRect()
+    // 4.
     createTile(number) {
         const tile = document.createElement("div");
         tile.classList.add("puzzle_item");
@@ -49,7 +53,14 @@ export class GameBoard {
         // Handle tile click
         tile.addEventListener("click", (e) => {
             if (number !== this.cells.length + 1 && this.isValidMove(tile)) {
-                tile.style.transform = "scale(0)";
+                const rect = tile.getBoundingClientRect();
+                const emptyTile = document.querySelector('[data-number="16"]');
+                const rectEmptyTile = emptyTile.getBoundingClientRect();
+                // tile.style.transform = "scale(0)";
+                console.log(tile.getBoundingClientRect());
+                const distanceX = rectEmptyTile.x - rect.x;
+                const distanceY = rectEmptyTile.y - rect.y;
+                tile.style.transform = `translate(${distanceX}px, ${distanceY}px)`;
             }
         });
 
@@ -59,7 +70,7 @@ export class GameBoard {
                 this.moveTile(tile);
                 setTimeout(() => {
                     moveAllowed = false;
-                    tile.style.transform = "";
+                    tile.style.transform = 'translate(0px,0px)';
                 }, 0);
             } else if (!moveAllowed) {
                 moveAllowed = true;
