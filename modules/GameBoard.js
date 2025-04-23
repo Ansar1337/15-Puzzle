@@ -43,7 +43,11 @@ export class GameBoard {
 // 1. Анимация на клик
     // 2. При клике тайл должен слайдится в валидное направление (right, left, top, bottom)
     // 3. Вычисление координат через getBoundingClientRect()
-    // 4.
+
+    // 4.1  1-ый листенер делает transform(translate) на n-ую дистанцию ;
+    // 4.2  2-ой листенер завязан на transitionend и принимает наш transform(translate)
+    // 4.3  во 2-ом листенере происходит moveTile и сбрасывается transform(translate)
+    // 4.4 происходит оффсет тайлов
     createTile(number) {
         const tile = document.createElement("div");
         tile.classList.add("puzzle_item");
@@ -56,7 +60,6 @@ export class GameBoard {
                 const rect = tile.getBoundingClientRect();
                 const emptyTile = document.querySelector('[data-number="16"]');
                 const rectEmptyTile = emptyTile.getBoundingClientRect();
-                // tile.style.transform = "scale(0)";
                 console.log(tile.getBoundingClientRect());
                 const distanceX = rectEmptyTile.x - rect.x;
                 const distanceY = rectEmptyTile.y - rect.y;
@@ -67,11 +70,8 @@ export class GameBoard {
         let moveAllowed = true;
         tile.addEventListener("transitionend", (e) => {
             if (e.propertyName === "transform" && moveAllowed) {
+                tile.style.transform = 'none';
                 this.moveTile(tile);
-                setTimeout(() => {
-                    moveAllowed = false;
-                    tile.style.transform = 'translate(0px,0px)';
-                }, 0);
             } else if (!moveAllowed) {
                 moveAllowed = true;
             }
