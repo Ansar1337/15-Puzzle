@@ -23,7 +23,7 @@ export class EndScreen {
 
         this.components.button.addEventListener("click", () => {
             this.writer =
-                fetch('http://localhost:3000/api/add_player', {
+                fetch(`${this.gameObject.backendURL}/api/add_player`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

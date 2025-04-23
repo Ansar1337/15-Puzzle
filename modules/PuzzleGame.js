@@ -23,14 +23,16 @@ export class PuzzleGame {
     moves;
     time;
     localLang = "ru";
+    backendURL;
 
-    constructor() {
+    constructor(backendURL) {
         this.startScreen = new StartScreen(this);
         this.gameBoard = new GameBoard(this);
         this.screenManager = new ScreenManager(document.getElementById("screen_main"));
         this.leaderBoard = new Top15_Screen(this);
         this.timer = new Timer(document.getElementById("time"));
         this.endScreen = new EndScreen(this);
+        this.backendURL = backendURL;
     }
 
     init() {

@@ -70,7 +70,9 @@ export class GameBoard {
         let moveAllowed = true;
         tile.addEventListener("transitionend", (e) => {
             if (e.propertyName === "transform" && moveAllowed) {
-                tile.style.transform = 'none';
+                tile.style.transition = "none";
+                tile.style.transform = 'translate(0px, 0px)';
+                tile.style.transition = "";
                 this.moveTile(tile);
             } else if (!moveAllowed) {
                 moveAllowed = true;

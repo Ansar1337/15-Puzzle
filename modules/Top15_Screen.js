@@ -32,7 +32,7 @@ export class Top15_Screen {
     }
 
     getLeaderBoardPlayers() {
-        fetch('http://localhost:3000/api/get_top_players')
+        fetch(`${this.gameObject.backendURL}/api/get_top_players`)
             .then(response => response.json())
             .then(data => {
                 const listElement = document.getElementById("list_15");
